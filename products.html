@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Product Listing</title>
+  <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+<main>
+  <section aria-labelledby="products-title">
+    <h1 id="products-title">Products</h1>
+
+    <article>
+      <img src="product1.jpg" alt="Product 1">
+      <h2>Product One</h2>
+      <p class="price">300</p>
+      <a href="detail.html">View Details</a>
+    </article>
+
+    <article>
+      <img src="product2.jpg" alt="Product 2">
+      <h2>Product Two</h2>
+      <p class="price">400</p>
+      <a href="detail.html">View Details</a>
+    </article>
+  </section>
+
+  <aside>
+    <h2>Filter Products</h2>
+    <form>
+      <fieldset>
+        <legend>Category</legend>
+        <label><input type="checkbox"> Electronics</label>
+        <label><input type="checkbox"> Clothing</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Price Range</legend>
+        <label><input type="radio" name="price"> Low</label>
+        <label><input type="radio" name="price"> High</label>
+      </fieldset>
+    </form>
+  </aside>
+</main>
+
+</body>
+</html>

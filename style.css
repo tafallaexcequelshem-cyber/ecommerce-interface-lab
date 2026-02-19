@@ -1,0 +1,154 @@
+/*TASK 1: GLOBAL STYLES & CSS VARIABLES*/
+
+/* CSS Variables */
+:root {
+    --primary-color: #2c3e50;
+    --accent-color: #e67e22;
+    --bg-light: #f4f4f4;
+    --text-main: #333333;
+    --card-bg: #ffffff;
+}
+
+/* Body Styling */
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main);
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+    display: block;
+}
+
+/* Headings */
+h1, h2, h3 {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+/*nTASK 2: INTERACTIVE STATES & TRANSITIONS */
+
+/* Navigation Links */
+a {
+    text-decoration: none;
+    color: var(--primary-color);
+    transition: color 0.3s ease, background-color 0.3s ease;
+    display: inline-block;
+}
+
+/* Hover */
+a:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
+}
+
+/* Active */
+a:active {
+    color: red;
+}
+
+/* Focus (keyboard users) */
+a:focus,
+button:focus,
+input:focus {
+    outline: 2px solid var(--accent-color);
+}
+
+/* Buttons */
+button {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: inline-block;
+}
+
+/* Button Hover */
+button:hover {
+    background-color: var(--accent-color);
+}
+
+/* Button Active */
+button:active {
+    background-color: #000000;
+}
+
+/* TASK 3: PRODUCT LIST STYLING (products.html) */
+
+/* Product Cards */
+article {
+    display: inline-block;
+    width: 250px;
+    vertical-align: top;
+    background-color: var(--card-bg);
+    border: 1px solid #cccccc;
+    padding: 15px;
+    margin: 10px;
+}
+
+/* Alternating Background Colors */
+article:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+article:nth-child(even) {
+    background-color: #f0f0f0;
+}
+
+/* TASK 4: ADVANCED SELECTORS & PSEUDO-ELEMENTS */
+
+/* cart.html - Empty Cart Message */
+/* Make sure your cart container has id="cart-container" */
+#cart-container:empty::before {
+    content: "Your cart is empty.";
+    display: block;
+    padding: 15px;
+    background-color: #ffe6e6;
+    border: 1px solid red;
+    color: red;
+}
+
+/* Currency Symbol Before Price */
+/* Make sure price elements have class="price" */
+.price::before {
+    content: "₱ ";
+}
+
+/* signup.html Required Fields */
+input:required {
+    border: 2px solid red;
+}
+
+/* Valid Fields */
+input:valid {
+    border: 2px solid green;
+}
+
+/*  TASK 5: DETAILED DATA STYLING */
+
+/* detail.html - First Column Styling */
+table th:first-child,
+table td:first-child {
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+/* account.html - Order History Bullet Styling */
+ul li::marker {
+    color: var(--accent-color);
+}
+
+/* detail.html - Styled Quotation Marks for Reviews */
+blockquote::before {
+    content: "“";
+    font-size: 24px;
+    color: var(--accent-color);
+}
+
+blockquote::after {
+    content: "”";
+    font-size: 24px;
+    color: var(--accent-color);
+}
