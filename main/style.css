@@ -1,0 +1,316 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* Back button link styling */
+header a {
+    text-decoration: none;
+    color: #555;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+}
+
+header a:hover {
+    color: #000;
+}
+
+/* Fluid & Uniform Images */
+section img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+}
+
+/* CLOTHING DETAILS TABLE STYLING */
+table {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px 0;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+table caption {
+    text-align: left;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+th {
+    background-color: #f9f9f9;
+    width: 30%;
+    font-weight: 600;
+}
+
+/* FORM & BUTTON STYLING */
+form {
+    background: #f4f4f4;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 400px;
+    margin: 20px 0;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+select,
+input[type="number"],
+input[type="text"] {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    font-size: 1rem;
+}
+
+button[type="submit"],
+button.checkout-btn {
+    background-color: #222;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background 0.3s, transform 0.1s;
+}
+
+button[type="submit"]:hover,
+button.checkout-btn:hover {
+    background-color: #444;
+}
+
+button[type="submit"]:active,
+button.checkout-btn:active {
+    transform: scale(0.98);
+}
+
+/*2. MOBILE STYLES (0px - 480px)*/
+
+header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    background-color: #f8f8f8;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Hero Section (if any) */
+section[aria-labelledby="hero-title"] {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 60vh;
+    padding: 40px 20px;
+    background-image: linear-gradient(
+        rgba(0, 0, 0, 0.5),
+        rgba(0, 0, 0, 0.5)
+    ), url('../image/background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: white;
+    animation: fadeIn 1.5s ease-in;
+}
+
+/* Main Sections Layout */
+main section:not([aria-labelledby="hero-title"]) {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 40px 20px;
+}
+
+section h2 {
+    grid-column: 1 / -1;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/*3. TABLET STYLES (min-width: 481px)*/
+@media (min-width: 481px) {
+    main section:not([aria-labelledby="hero-title"]) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/*4. DESKTOP STYLES (min-width: 769px)*/
+@media (min-width: 769px) {
+    header {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 1rem 5%;
+    }
+
+    main {
+        padding: 40px 10%;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    main section:not([aria-labelledby="hero-title"]) {
+        grid-template-columns: repeat(3, 1fr);
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    section img {
+        height: 350px;
+    }
+}
+
+/* Checkout Page Summary Layout*/
+main.checkout .summary {
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background: #f9f9f9;
+}
+
+main.checkout .summary h2 {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+main.checkout .summary-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 15px 0;
+}
+
+main.checkout .summary-list li {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee;
+}
+
+main.checkout .summary-list .item-price {
+    font-weight: bold;
+}
+
+main.checkout .summary-total-row {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+main.checkout .shipping-info {
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+main.checkout .checkout-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #222;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.1s;
+}
+
+main.checkout .checkout-btn:hover {
+    background-color: #444;
+}
+
+main.checkout .checkout-btn:active {
+    transform: scale(0.98);
+}
+
+/*Sign Up Page Layout*/
+
+main.signup-page {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+}
+
+main.signup-page h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+main.signup-page form fieldset {
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 20px;
+    background: #f4f4f4;
+}
+
+main.signup-page label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+main.signup-page input[type="email"],
+main.signup-page input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+main.signup-page button[type="submit"] {
+    background-color: #222;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background 0.3s, transform 0.1s;
+}
+
+main.signup-page button[type="submit"]:hover {
+    background-color: #444;
+}
+
+main.signup-page button[type="submit"]:active {
+    transform: scale(0.98);
+}

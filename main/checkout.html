@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Checkout - Clothing Store</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <a href="landing.html">← Back</a>
+</header>
+
+<main class="checkout">
+  <h1>Checkout</h1>
+
+  <section>
+    <h2>Shipping Information</h2>
+    <form>
+      <label>Name</label>
+      <input type="text" required>
+
+      <label>Street</label>
+      <input type="text" required>
+
+      <label>ZIP Code</label>
+      <input type="text" required>
+    </form>
+  </section>
+
+  <section>
+    <h2>Payment Method</h2>
+    <form>
+      <label><input type="radio" name="payment"> Credit Card</label>
+      <label><input type="radio" name="payment"> PayPal</label>
+    </form>
+  </section>
+
+  <section class="summary">
+    <h2>Order Summary</h2>
+
+    <ul class="summary-list">
+      <li>One Piece - Oversized Tee x 1 <span class="item-price">₱600</span></li>
+      <li>Upseen - Standard Tee x 2 <span class="item-price">₱800</span></li>
+    </ul>
+
+    <div class="summary-total-row">
+      <span>Subtotal:</span>
+      <span class="total-amount">₱1,400</span>
+    </div>
+
+    <button type="submit" class="checkout-btn">Place Order</button>
+  </section>
+</main>
+
+</body>
+</html>

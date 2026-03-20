@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Shopping Cart - Clothing Store</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <a href="landing.html">← Back</a>
+</header>
+
+<main class="cart-page">
+  <h1>Your Shopping Cart</h1>
+
+  <section id="cart-container">
+    <ul class="cart-list">
+      
+      <li class="cart-item">
+        <div class="cart-item-image">
+          <img src="../image/b7e69fc1-f473-49b7-b02c-1e07fb7abdfe.jpg" alt="One Piece">
+        </div>
+        <div class="cart-item-details">
+          <h3>One Piece - Oversized Tee</h3>
+          <p class="cart-spec">Size: <strong>Large</strong></p>
+          <p class="price">₱600</p>
+        </div>
+        <div class="cart-item-actions">
+          <label for="qty1">Qty:</label>
+          <input type="number" id="qty1" value="1" min="1">
+          <button type="button" class="remove-btn">Remove</button>
+        </div>
+      </li>
+
+      <li class="cart-item">
+        <div class="cart-item-image">
+          <img src="../image/f2f8f27e-df3f-4e0c-ba53-f6cf4d3957c1.jpg" alt="Upseen">
+        </div>
+        <div class="cart-item-details">
+          <h3>Upseen - Standard Tee</h3>
+          <p class="cart-spec">Size: <strong>Medium</strong></p>
+          <p class="price">₱400</p>
+        </div>
+        <div class="cart-item-actions">
+          <label for="qty2">Qty:</label>
+          <input type="number" id="qty2" value="2" min="1">
+          <button type="button" class="remove-btn">Remove</button>
+        </div>
+      </li>
+
+    </ul>
+
+    <div class="cart-summary">
+      <div class="summary-row">
+        <span>Subtotal:</span>
+        <span class="total-amount">₱1,400</span>
+      </div>
+      <p class="shipping-info">Shipping calculated at checkout.</p>
+      
+      <a href="checkout.html">
+        <button type="button" class="checkout-btn">Proceed to Checkout</button>
+      </a>
+    </div>
+
+  </section>
+</main>
+
+</body>
+</html>

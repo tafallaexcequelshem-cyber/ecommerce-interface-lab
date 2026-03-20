@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Product Listing</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+  <a href="landing.html">← Back</a>
+</header>
+
+<main>
+  <section aria-labelledby="products-title" id="product-container">
+    
+    <article class="product oversized" data-price="600">
+      <img src="../image/b7e69fc1-f473-49b7-b02c-1e07fb7abdfe.jpg" alt="Product 1">
+      <h2>One Piece</h2>
+      <p class="price">₱600</p>
+      <a href="product details oversize.html?product=onepiece">View Details</a>
+    </article>
+
+    <article class="product oversized" data-price="300">
+      <img src="../image/e2680c66-259f-4f45-9e28-f5655d6f30f2.jpg" alt="Product 1">
+      <h2>Eternal</h2>
+      <p class="price">₱300</p>
+      <a href="product details oversize.html?product=eternal">View Details</a>
+    </article>
+
+    <article class="product standard" data-price="400">
+      <img src="../image/f2f8f27e-df3f-4e0c-ba53-f6cf4d3957c1.jpg" alt="Product 2">
+      <h2>Upseen</h2>
+      <p class="price">₱400</p>
+      <a href="product details stn.html?product=upseen">View Details</a>
+    </article>
+
+  </section>
+
+  <aside>
+    <h2>Filter Products</h2>
+    <form id="filter-form">
+      <fieldset>
+        <legend>Category</legend>
+        <label><input type="checkbox" class="cat-check" value="oversized" checked> Oversized</label>
+        <label><input type="checkbox" class="cat-check" value="standard" checked> Standard Round Neck</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Price Range</legend>
+        <label><input type="radio" name="price" value="all" checked> All Prices</label>
+        <label><input type="radio" name="price" value="low"> Low</label>
+        <label><input type="radio" name="price" value="high"> High</label>
+      </fieldset>
+    </form>
+  </aside>
+</main>
+
+<script>
+  const form = document.getElementById('filter-form');
+  const products = document.querySelectorAll('.product');
+
+  function updateFilters() {
+    const activeCategories = Array.from(document.querySelectorAll('.cat-check:checked')).map(cb => cb.value);
+    const selectedPriceRange = document.querySelector('input[name="price"]:checked').value;
+
+    products.forEach(product => {
+      const price = parseInt(product.getAttribute('data-price'));
+      const isOversized = product.classList.contains('oversized');
+      const isStandard = product.classList.contains('standard');
+
+      let categoryMatch = false;
+      if (isOversized && activeCategories.includes('oversized')) categoryMatch = true;
+      if (isStandard && activeCategories.includes('standard')) categoryMatch = true;
+
+      let priceMatch = false;
+      if (selectedPriceRange === 'all') {
+        priceMatch = true;
+      } else if (selectedPriceRange === 'low') {
+        priceMatch = price <= 400;
+      } else if (selectedPriceRange === 'high') {
+        priceMatch = price > 400;
+      }
+
+      if (categoryMatch && priceMatch) {
+        product.style.display = 'block';
+      } else {
+        product.style.display = 'none';
+      }
+    });
+  }
+
+  form.addEventListener('change', updateFilters);
+</script>
+
+</body>
+</html>
