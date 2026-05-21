@@ -14,44 +14,54 @@
 <main class="checkout">
   <h1>Checkout</h1>
 
-  <section>
-    <h2>Shipping Information</h2>
-    <form>
-      <label>Name</label>
-      <input type="text" required>
+  <form id="checkout-form">
+    <section>
+      <h2>Shipping Information</h2>
+      <fieldset>
+        <label for="fullname">Full Name</label>
+        <input id="fullname" type="text" name="fullname" required>
 
-      <label>Street</label>
-      <input type="text" required>
+        <label for="email">Email</label>
+        <input id="email" type="email" name="email" required>
 
-      <label>ZIP Code</label>
-      <input type="text" required>
-    </form>
-  </section>
+        <label for="street">Street Address</label>
+        <input id="street" type="text" name="street" required>
 
-  <section>
-    <h2>Payment Method</h2>
-    <form>
-      <label><input type="radio" name="payment"> Credit Card</label>
-      <label><input type="radio" name="payment"> PayPal</label>
-    </form>
-  </section>
+        <label for="city">City</label>
+        <input id="city" type="text" name="city" required>
 
-  <section class="summary">
-    <h2>Order Summary</h2>
+        <label for="zipcode">ZIP Code</label>
+        <input id="zipcode" type="text" name="zipcode" required>
+      </fieldset>
+    </section>
 
-    <ul class="summary-list">
-      <li>One Piece - Oversized Tee x 1 <span class="item-price">₱600</span></li>
-      <li>Upseen - Standard Tee x 2 <span class="item-price">₱800</span></li>
-    </ul>
+    <section>
+      <h2>Payment Method</h2>
+      <fieldset>
+        <legend>Select Payment Method</legend>
+        <label><input type="radio" name="payment" value="credit-card" required> Credit Card</label>
+        <label><input type="radio" name="payment" value="paypal" required> PayPal</label>
+      </fieldset>
+    </section>
 
-    <div class="summary-total-row">
-      <span>Subtotal:</span>
-      <span class="total-amount">₱1,400</span>
-    </div>
+    <section class="summary">
+      <h2>Order Summary</h2>
 
-    <button type="submit" class="checkout-btn">Place Order</button>
-  </section>
+      <ul class="summary-list">
+        <li>One Piece - Oversized Tee x 1 <span class="item-price">₱600</span></li>
+        <li>Upseen - Standard Tee x 2 <span class="item-price">₱800</span></li>
+      </ul>
+
+      <div class="summary-total-row">
+        <span>Subtotal:</span>
+        <span class="total-amount">₱1,400</span>
+      </div>
+
+      <button type="submit" class="checkout-btn">Place Order</button>
+    </section>
+  </form>
 </main>
 
+<script src="script.js"></script>
 </body>
 </html>
