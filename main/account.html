@@ -4,35 +4,30 @@
   <meta charset="UTF-8">
   <title>My Account</title>
   <link rel="stylesheet" href="style.css">
-
 </head>
 <body>
 
-  <header>
-  <a href="landing.html">← Back</a>
-</header>
-
 <header>
-  <h1>Welcome, User</h1>
+  <h1>My Account</h1>
   <nav aria-label="Account navigation">
     <ul>
-      <li><a href="#">Order History</a></li>
-      <li><a href="#">Profile Settings</a></li>
-      <li><a href="#">Wishlist</a></li>
+      <li><a href="landing.html">Home</a></li>
+      <li><a href="products.html">Shop</a></li>
+      <li><a href="cart.html">Cart</a></li>
     </ul>
   </nav>
 </header>
 
 <main>
-  <h2>Previous Purchases</h2>
+  <section>
+    <h2>Previous Purchases</h2>
+  </section>
 
-  <details>
-    <summary>Order #12345</summary>
-    <ul>
-      <li>Product One</li>
-      <li>Product Two</li>
-    </ul>
-  </details>
+  </section>
+
+  <section class="order-history">
+    <!-- Order details will be dynamically rendered here by script.js -->
+  </section>
 </main>
 
 <script src="script.js"></script>

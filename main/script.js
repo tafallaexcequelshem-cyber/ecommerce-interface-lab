@@ -512,20 +512,20 @@ function isValidEmail(email) {
  * Render user account page with greeting and order history
  */
 function renderAccountPage() {
-  // Update greeting with user name
-  const welcomeHeader = document.querySelector('header h1');
-  if (welcomeHeader) {
-    welcomeHeader.textContent = `Welcome, ${currentUser.name}!`;
+  // Update greeting with user name in header
+  const headerH1 = document.querySelector('header h1');
+  if (headerH1) {
+    headerH1.textContent = `Welcome, ${currentUser.name}!`;
   }
 
-  // Render order history
-  const detailsElements = document.querySelectorAll('details');
-  detailsElements.forEach(details => details.remove());
+  // Get the order history section
+  const orderHistorySection = document.querySelector('.order-history');
+  if (!orderHistorySection) return;
 
-  const main = document.querySelector('main');
-  if (!main) return;
+  // Clear existing content
+  orderHistorySection.innerHTML = '';
 
-  // Create order history section
+  // Create order history container
   currentUser.orderHistory.forEach(order => {
     const details = document.createElement('details');
     details.className = 'order-details';
@@ -545,7 +545,7 @@ function renderAccountPage() {
     });
 
     details.appendChild(ul);
-    main.appendChild(details);
+    orderHistorySection.appendChild(details);
   });
 }
 

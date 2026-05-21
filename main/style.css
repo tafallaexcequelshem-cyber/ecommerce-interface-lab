@@ -8,6 +8,13 @@ body {
     padding: 0;
     line-height: 1.6;
     color: #333;
+    background-color: #fff;
+}
+
+main {
+    width: 100%;
+    padding: 0;
+    margin: 0;
 }
 
 /* Back button link styling */
@@ -117,9 +124,18 @@ header {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     padding: 1rem;
     background-color: #f8f8f8;
     border-bottom: 1px solid #ddd;
+    gap: 1rem;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    text-align: center;
+    color: #222;
 }
 
 header nav {
@@ -175,6 +191,36 @@ main section:not([aria-labelledby="hero-title"]) {
     grid-template-columns: 1fr;
     gap: 20px;
     padding: 40px 20px;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+main > aside {
+    padding: 20px;
+    background: #f9f9f9;
+    border-top: 1px solid #ddd;
+}
+
+/* Products page layout with sidebar */
+main:has(> aside) {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+main:has(> aside) > section {
+    flex: 1;
+    min-width: 250px;
+    padding: 20px;
+    margin: 0;
+}
+
+main:has(> aside) > aside {
+    flex: 0 0 250px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-left: 1px solid #ddd;
+    height: fit-content;
 }
 
 section h2 {
@@ -200,19 +246,45 @@ section h2 {
     header {
         flex-direction: row;
         justify-content: space-between;
-        padding: 1rem 5%;
+        align-items: center;
+        padding: 1rem 3%;
+    }
+
+    header h1 {
+        margin: 0;
+        flex: 0 0 auto;
+    }
+
+    header nav {
+        margin-top: 0;
     }
 
     main {
-        padding: 40px 10%;
-        max-width: 1400px;
-        margin: 0 auto;
+        padding: 0;
+        max-width: 100%;
+    }
+
+    main:has(> aside) {
+        gap: 0;
+    }
+
+    main:has(> aside) > section {
+        flex: 1;
+        padding: 40px 3%;
+    }
+
+    main:has(> aside) > aside {
+        flex: 0 0 280px;
+        padding: 40px 20px;
+        position: sticky;
+        top: 0;
     }
 
     main section:not([aria-labelledby="hero-title"]) {
         grid-template-columns: repeat(3, 1fr);
-        max-width: 1200px;
-        margin: 0 auto;
+        max-width: 100%;
+        margin: 0;
+        padding: 40px 3%;
     }
 
     section img {
@@ -489,6 +561,46 @@ article.product .price {
     transform: scale(0.98);
 }
 
+/* Filter sidebar styling */
+aside {
+    background: #f9f9f9;
+}
+
+aside h2 {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+aside form fieldset {
+    border: none;
+    padding: 15px 0;
+    margin: 0;
+    border-bottom: 1px solid #ddd;
+}
+
+aside form fieldset:last-child {
+    border-bottom: none;
+}
+
+aside form legend {
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+}
+
+aside form label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+aside form input[type="checkbox"],
+aside form input[type="radio"] {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
 /* ============================================================================
    CART PAGE STYLING
    ============================================================================ */
@@ -496,6 +608,7 @@ article.product .price {
 .cart-page h1 {
     text-align: center;
     margin-bottom: 30px;
+    margin-top: 20px;
 }
 
 #cart-container {
@@ -619,7 +732,7 @@ article.product .price {
 main.checkout {
     max-width: 900px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 40px 20px;
 }
 
 main.checkout h1 {
@@ -629,8 +742,8 @@ main.checkout h1 {
 
 main.checkout section {
     background: #f9f9f9;
-    padding: 20px;
-    margin-bottom: 20px;
+    padding: 25px;
+    margin-bottom: 25px;
     border-radius: 8px;
     border: 1px solid #eee;
 }
@@ -738,5 +851,20 @@ main.checkout label input[type="radio"] {
     .cart-summary {
         margin: 20px 0;
         max-width: none;
+    }
+
+    main:has(> aside) {
+        flex-direction: column;
+    }
+
+    main:has(> aside) > section {
+        flex: 1;
+        padding: 20px;
+    }
+
+    main:has(> aside) > aside {
+        flex: 0 0 auto;
+        border-left: none;
+        border-top: 1px solid #ddd;
     }
 }
