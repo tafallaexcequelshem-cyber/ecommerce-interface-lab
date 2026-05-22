@@ -1,64 +1,53 @@
 package com.ws101.obrino.service;
 
 import com.ws101.obrino.model.Product;
+import com.ws101.obrino.model.Category;
 import com.ws101.obrino.exception.ProductNotFoundException;
+import com.ws101.obrino.repository.ProductRepository;
+import com.ws101.obrino.repository.CategoryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Service class for product-related operations.
  *
  * Provides business logic for filtering, searching, and managing products.
  * This class acts as an intermediary between the API controller and the
- * data access layer. Currently uses in-memory storage with a List.
+ * data access layer. Uses Spring Data JPA repositories for database persistence.
  *
  * @author Obrino
- * @version 1.0
+ * @version 2.0
  * @see Product
+ * @see ProductRepository
  */
 @Service
 public class ProductService {
 
-    private final List<Product> productList = new ArrayList<>();
-    private Long nextId = 1L;
+    private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
     /**
-     * Constructor that initializes the product list with sample data.
+     * Constructor for dependency injection of repositories.
+     *
+     * @param productRepository the product repository for database operations
+     * @param categoryRepository the category repository for database operations
      */
-    public ProductService() {
-        initializeProducts();
+    @Autowired
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
+        this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     /**
-     * Initializes the product list with 12 sample products.
-     * This method populates the in-memory storage with test data.
-     */
-    private void initializeProducts() {
-        productList.add(new Product(nextId++, "One Piece - Oversized Tee", "Comfortable oversized fit perfect for casual wear", 600.0, "Oversized", 50, "product1.jpg"));
-        productList.add(new Product(nextId++, "Eternal - Oversized Tee", "Timeless design with premium quality fabric", 300.0, "Oversized", 45, "product2.jpg"));
-        productList.add(new Product(nextId++, "Upseen - Standard Tee", "Classic standard fit for everyday wear", 400.0, "Standard Round Neck", 60, "product3.jpg"));
-        productList.add(new Product(nextId++, "Urban Vibes - Oversized Tee", "Street style inspired oversized tee", 550.0, "Oversized", 35, "product4.jpg"));
-        productList.add(new Product(nextId++, "Minimalist White - Standard Tee", "Pure white classic fit tee", 350.0, "Standard Round Neck", 70, "product5.jpg"));
-        productList.add(new Product(nextId++, "Retro Black - Oversized Tee", "Vintage inspired oversized design", 500.0, "Oversized", 40, "product6.jpg"));
-        productList.add(new Product(nextId++, "Premium Gray - Standard Tee", "Premium quality gray standard fit", 450.0, "Standard Round Neck", 55, "product7.jpg"));
-        productList.add(new Product(nextId++, "Bold Navy - Oversized Tee", "Navy blue oversized comfort fit", 580.0, "Oversized", 30, "product8.jpg"));
-        productList.add(new Product(nextId++, "Summer Cool - Standard Tee", "Lightweight perfect for summer", 380.0, "Standard Round Neck", 65, "product9.jpg"));
-        productList.add(new Product(nextId++, "Classic Red - Oversized Tee", "Bold red statement piece", 520.0, "Oversized", 25, "product10.jpg"));
-        productList.add(new Product(nextId++, "Earth Tone - Standard Tee", "Natural earth tone colors", 420.0, "Standard Round Neck", 50, "product11.jpg"));
-        productList.add(new Product(nextId++, "Premium Charcoal - Oversized Tee", "Premium charcoal oversized fit", 600.0, "Oversized", 20, "product12.jpg"));
-    }
-
-    /**
-     * Retrieves all products from the in-memory storage.
+     * Retrieves all products from the database.
      *
      * @return a {@code List<Product>} containing all products in the system.
      * Returns an empty list if no products exist.
      */
     public List<Product> getAllProducts() {
-        return new ArrayList<>(productList);
+        return productRepository.findAll();
     }
 
     /**
@@ -69,16 +58,14 @@ public class ProductService {
      * @throws ProductNotFoundException if no product with the given ID exists
      */
     public Product getProductById(Long id) {
-        return productList.stream()
-                .filter(product -> product.getId().equals(id))
-                .findFirst()
+        return productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(
                         String.format("Product with ID %d not found", id)
                 ));
     }
 
     /**
-     * Creates a new product and adds it to the in-memory storage.
+     * Creates a new product and saves it to the database.
      *
      * @param product the product to be created. Must have name, price, and category.
      * @return the created {@code Product} with an auto-generated ID
@@ -87,9 +74,7 @@ public class ProductService {
      */
     public Product createProduct(Product product) {
         validateProduct(product);
-        product.setId(nextId++);
-        productList.add(product);
-        return product;
+        return productRepository.save(product);
     }
 
     /**
@@ -112,7 +97,7 @@ public class ProductService {
         existingProduct.setStock(updatedProduct.getStock());
         existingProduct.setImageUrl(updatedProduct.getImageUrl());
 
-        return existingProduct;
+        return productRepository.save(existingProduct);
     }
 
     /**
@@ -135,7 +120,7 @@ public class ProductService {
         if (partialProduct.getPrice() != null && partialProduct.getPrice() > 0) {
             existingProduct.setPrice(partialProduct.getPrice());
         }
-        if (partialProduct.getCategory() != null && !partialProduct.getCategory().isEmpty()) {
+        if (partialProduct.getCategory() != null) {
             existingProduct.setCategory(partialProduct.getCategory());
         }
         if (partialProduct.getStock() != null && partialProduct.getStock() >= 0) {
@@ -145,18 +130,18 @@ public class ProductService {
             existingProduct.setImageUrl(partialProduct.getImageUrl());
         }
 
-        return existingProduct;
+        return productRepository.save(existingProduct);
     }
 
     /**
-     * Deletes a product from the in-memory storage.
+     * Deletes a product from the database.
      *
      * @param id the ID of the product to delete
      * @throws ProductNotFoundException if the product with given ID does not exist
      */
     public void deleteProduct(Long id) {
         Product product = getProductById(id);
-        productList.remove(product);
+        productRepository.delete(product);
     }
 
     /**
@@ -201,13 +186,11 @@ public class ProductService {
     /**
      * Filters products by category.
      *
-     * @param category the category to filter by (exact match, case-sensitive)
+     * @param categoryName the category name to filter by
      * @return a {@code List<Product>} containing all products in the specified category
      */
-    private List<Product> filterProductWithCategory(String category) {
-        return productList.stream()
-                .filter(product -> product.getCategory().equals(category))
-                .collect(Collectors.toList());
+    private List<Product> filterProductWithCategory(String categoryName) {
+        return productRepository.findByCategoryName(categoryName);
     }
 
     /**
@@ -217,9 +200,7 @@ public class ProductService {
      * @return a {@code List<Product>} containing products whose names contain the search term
      */
     private List<Product> filterProductWithName(String name) {
-        return productList.stream()
-                .filter(product -> product.getName().toLowerCase().contains(name.toLowerCase()))
-                .collect(Collectors.toList());
+        return productRepository.findByNameContainingIgnoreCase(name);
     }
 
     /**
@@ -233,9 +214,7 @@ public class ProductService {
         if (minPrice < 0) {
             throw new IllegalArgumentException("Minimum price cannot be negative");
         }
-        return productList.stream()
-                .filter(product -> product.getPrice() >= minPrice)
-                .collect(Collectors.toList());
+        return productRepository.findByPriceRange(minPrice, Double.MAX_VALUE);
     }
 
     /**
@@ -249,9 +228,7 @@ public class ProductService {
         if (maxPrice < 0) {
             throw new IllegalArgumentException("Maximum price cannot be negative");
         }
-        return productList.stream()
-                .filter(product -> product.getPrice() <= maxPrice)
-                .collect(Collectors.toList());
+        return productRepository.findByPriceRange(0.0, maxPrice);
     }
 
     /**
@@ -281,16 +258,14 @@ public class ProductService {
      * Filters products by price range.
      *
      * Retrieves all products where the price falls within the specified range,
-     * inclusive of both boundaries. Products are returned in the order they
-     * appear in the underlying data source.
+     * inclusive of both boundaries.
      *
      * @param minPrice the minimum price threshold (inclusive).
      * Must be non-negative and less than or equal to maxPrice.
      * @param maxPrice the maximum price threshold (inclusive).
      * Must be non-negative and greater than or equal to minPrice.
      * @return a {@code List<Product>} containing all products with price within
-     * [minPrice, maxPrice]. Returns an empty list if no products match the
-     * criteria or if the data source is empty.
+     * [minPrice, maxPrice]. Returns an empty list if no products match the criteria.
      * @throws IllegalArgumentException if minPrice is negative, maxPrice is
      * negative, or minPrice > maxPrice
      */
@@ -301,9 +276,7 @@ public class ProductService {
         if (minPrice > maxPrice) {
             throw new IllegalArgumentException("Minimum price cannot be greater than maximum price");
         }
-        return productList.stream()
-                .filter(product -> product.getPrice() >= minPrice && product.getPrice() <= maxPrice)
-                .collect(Collectors.toList());
+        return productRepository.findByPriceRange(minPrice, maxPrice);
     }
 
     /**
@@ -312,7 +285,7 @@ public class ProductService {
      * Checks that:
      * - Product name is not null/empty and has minimum length
      * - Price is a positive number
-     * - Category is not null/empty
+     * - Category is not null
      * - Stock quantity is non-negative
      *
      * @param product the product to validate
@@ -328,7 +301,7 @@ public class ProductService {
         if (product.getPrice() == null || product.getPrice() <= 0) {
             throw new IllegalArgumentException("Product price must be a positive number");
         }
-        if (product.getCategory() == null || product.getCategory().trim().isEmpty()) {
+        if (product.getCategory() == null) {
             throw new IllegalArgumentException("Product category is required");
         }
         if (product.getStock() == null || product.getStock() < 0) {
