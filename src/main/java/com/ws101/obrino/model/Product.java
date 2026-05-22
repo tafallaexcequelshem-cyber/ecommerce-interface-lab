@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 /**
  * Product entity representing an e-commerce product in the database.
@@ -54,7 +55,7 @@ public class Product {
      * Must be a positive number. Stored with 2 decimal places.
      */
     @Column(nullable = false, precision = 10, scale = 2)
-    private Double price;
+    private BigDecimal price;
 
     /**
      * Many-to-One relationship with Category.

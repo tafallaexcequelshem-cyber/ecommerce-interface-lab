@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.math.BigDecimal;
 
 /**
  * Repository interface for Product entity.
@@ -53,7 +54,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
      * @return a list of products within the price range
      */
     @Query("SELECT p FROM Product p WHERE p.price BETWEEN :minPrice AND :maxPrice ORDER BY p.price ASC")
-    List<Product> findByPriceRange(@Param("minPrice") Double minPrice, @Param("maxPrice") Double maxPrice);
+    List<Product> findByPriceRange(@Param("minPrice") BigDecimal minPrice, @Param("maxPrice") BigDecimal maxPrice);
 
     /**
      * Find all products in stock (quantity > 0).

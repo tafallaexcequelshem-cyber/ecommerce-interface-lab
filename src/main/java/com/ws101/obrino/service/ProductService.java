@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.math.BigDecimal;
 
 /**
  * Service class for product-related operations.
@@ -117,7 +118,7 @@ public class ProductService {
         if (partialProduct.getDescription() != null) {
             existingProduct.setDescription(partialProduct.getDescription());
         }
-        if (partialProduct.getPrice() != null && partialProduct.getPrice() > 0) {
+        if (partialProduct.getPrice() != null && partialProduct.getPrice().compareTo(BigDecimal.ZERO) > 0) {
             existingProduct.setPrice(partialProduct.getPrice());
         }
         if (partialProduct.getCategory() != null) {
@@ -174,8 +175,8 @@ public class ProductService {
         return switch (filterType.toLowerCase()) {
             case "category" -> filterProductWithCategory(filterValue);
             case "name" -> filterProductWithName(filterValue);
-            case "price_min" -> filterProductWithMinPrice(Double.parseDouble(filterValue));
-            case "price_max" -> filterProductWithMaxPrice(Double.parseDouble(filterValue));
+            case "price_min" -> filterProductWithMinPrice(new BigDecimal(filterValue));
+            case "price_max" -> filterProductWithMaxPrice(new BigDecimal(filterValue));
             case "price_range" -> filterProductWithPriceRange(filterValue);
             default -> throw new IllegalArgumentException(
                     String.format("Invalid filter type: %s. Supported types: category, name, price_min, price_max, price_range", filterType)
@@ -210,11 +211,11 @@ public class ProductService {
      * @return a {@code List<Product>} containing all products with price >= minPrice
      * @throws IllegalArgumentException if minPrice is negative
      */
-    private List<Product> filterProductWithMinPrice(Double minPrice) {
-        if (minPrice < 0) {
+    private List<Product> filterProductWithMinPrice(BigDecimal minPrice) {
+        if (minPrice.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Minimum price cannot be negative");
         }
-        return productRepository.findByPriceRange(minPrice, Double.MAX_VALUE);
+        return productRepository.findByPriceRange(minPrice, new BigDecimal("999999999"));
     }
 
     /**
@@ -224,11 +225,11 @@ public class ProductService {
      * @return a {@code List<Product>} containing all products with price <= maxPrice
      * @throws IllegalArgumentException if maxPrice is negative
      */
-    private List<Product> filterProductWithMaxPrice(Double maxPrice) {
-        if (maxPrice < 0) {
+    private List<Product> filterProductWithMaxPrice(BigDecimal maxPrice) {
+        if (maxPrice.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Maximum price cannot be negative");
         }
-        return productRepository.findByPriceRange(0.0, maxPrice);
+        return productRepository.findByPriceRange(BigDecimal.ZERO, maxPrice);
     }
 
     /**
@@ -238,7 +239,7 @@ public class ProductService {
      * @return a {@code List<Product>} containing products with price within the range (inclusive)
      * @throws IllegalArgumentException if the format is invalid or prices are invalid
      *
-     * @see #filterProductWithPrice(Double, Double)
+     * @see #filterProductWithPrice(BigDecimal, BigDecimal)
      */
     private List<Product> filterProductWithPriceRange(String priceRange) {
         try {
@@ -246,8 +247,8 @@ public class ProductService {
             if (prices.length != 2) {
                 throw new IllegalArgumentException("Price range must be in format 'minPrice,maxPrice'");
             }
-            Double minPrice = Double.parseDouble(prices[0].trim());
-            Double maxPrice = Double.parseDouble(prices[1].trim());
+            BigDecimal minPrice = new BigDecimal(prices[0].trim());
+            BigDecimal maxPrice = new BigDecimal(prices[1].trim());
             return filterProductWithPrice(minPrice, maxPrice);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Price values must be valid numbers", e);
@@ -269,11 +270,11 @@ public class ProductService {
      * @throws IllegalArgumentException if minPrice is negative, maxPrice is
      * negative, or minPrice > maxPrice
      */
-    private List<Product> filterProductWithPrice(Double minPrice, Double maxPrice) {
-        if (minPrice < 0 || maxPrice < 0) {
+    private List<Product> filterProductWithPrice(BigDecimal minPrice, BigDecimal maxPrice) {
+        if (minPrice.compareTo(BigDecimal.ZERO) < 0 || maxPrice.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Prices cannot be negative");
         }
-        if (minPrice > maxPrice) {
+        if (minPrice.compareTo(maxPrice) > 0) {
             throw new IllegalArgumentException("Minimum price cannot be greater than maximum price");
         }
         return productRepository.findByPriceRange(minPrice, maxPrice);
@@ -298,7 +299,7 @@ public class ProductService {
         if (product.getName().length() < 3) {
             throw new IllegalArgumentException("Product name must be at least 3 characters long");
         }
-        if (product.getPrice() == null || product.getPrice() <= 0) {
+        if (product.getPrice() == null || product.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Product price must be a positive number");
         }
         if (product.getCategory() == null) {
