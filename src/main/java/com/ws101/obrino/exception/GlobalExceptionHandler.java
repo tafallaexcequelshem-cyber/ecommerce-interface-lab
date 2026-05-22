@@ -6,30 +6,30 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.dao.DataIntegrityViolationException;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.time.LocalDateTime;
 
 /**
- * Global exception handler for the entire application.
+ * Global exception handler for all REST API endpoints.
  *
- * This class provides centralized exception handling for all REST controllers.
- * It intercepts exceptions and returns consistent error response formats
+ * This class provides centralized exception handling for all REST controllers,
+ * intercepting exceptions and returning consistent error response formats
  * with appropriate HTTP status codes.
  *
  * @author Obrino
- * @version 1.0
+ * @version 2.0
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     /**
-     * Handles ProductNotFoundException.
-     *
-     * Returns a 404 Not Found response when a product cannot be located.
+     * Handle ProductNotFoundException (404 Not Found).
      *
      * @param ex the ProductNotFoundException that was thrown
      * @param request the current web request
-     * @return a ResponseEntity containing the ErrorResponse with 404 status
+     * @return ResponseEntity with ErrorResponse and 404 status
      */
     @ExceptionHandler(ProductNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleProductNotFound(
@@ -47,13 +47,37 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handles IllegalArgumentException.
+     * Handle EntityNotFoundException (404 Not Found).
      *
-     * Returns a 400 Bad Request response for invalid input parameters.
+     * Catches JPA EntityNotFoundException for any entity type.
+     *
+     * @param ex the EntityNotFoundException that was thrown
+     * @param request the current web request
+     * @return ResponseEntity with ErrorResponse and 404 status
+     */
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEntityNotFound(
+            EntityNotFoundException ex,
+            WebRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Resource Not Found",
+                ex.getMessage()
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Handle IllegalArgumentException (400 Bad Request).
+     *
+     * Catches validation errors thrown during business logic.
      *
      * @param ex the IllegalArgumentException that was thrown
      * @param request the current web request
-     * @return a ResponseEntity containing the ErrorResponse with 400 status
+     * @return ResponseEntity with ErrorResponse and 400 status
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(
@@ -71,23 +95,24 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handles MethodArgumentTypeMismatchException.
+     * Handle MethodArgumentTypeMismatchException (400 Bad Request).
      *
-     * Returns a 400 Bad Request response when URL parameters cannot be converted to expected types.
+     * Catches invalid type conversions in URL path variables or parameters.
      *
      * @param ex the MethodArgumentTypeMismatchException that was thrown
      * @param request the current web request
-     * @return a ResponseEntity containing the ErrorResponse with 400 status
+     * @return ResponseEntity with ErrorResponse and 400 status
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ErrorResponse> handleTypeMismatch(
+    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(
             MethodArgumentTypeMismatchException ex,
             WebRequest request) {
 
         String details = String.format(
-                "Parameter '%s' should be of type %s",
+                "Parameter '%s' should be of type %s, but received '%s'",
                 ex.getName(),
-                ex.getRequiredType().getSimpleName()
+                ex.getRequiredType().getSimpleName(),
+                ex.getValue()
         );
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -101,13 +126,49 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handles all other exceptions.
+     * Handle DataIntegrityViolationException (400 Bad Request).
      *
-     * Returns a 500 Internal Server Error response for unexpected exceptions.
+     * Catches database constraint violations (unique constraints, foreign key violations, etc.).
      *
-     * @param ex the exception that was thrown
+     * @param ex the DataIntegrityViolationException that was thrown
      * @param request the current web request
-     * @return a ResponseEntity containing the ErrorResponse with 500 status
+     * @return ResponseEntity with ErrorResponse and 400 status
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(
+            DataIntegrityViolationException ex,
+            WebRequest request) {
+
+        String details = "Database constraint violation. ";
+
+        if (ex.getMessage() != null) {
+            if (ex.getMessage().contains("Duplicate") || ex.getMessage().contains("unique")) {
+                details += "This record already exists. Please check your input for duplicates.";
+            } else if (ex.getMessage().contains("foreign key")) {
+                details += "Invalid reference to a related entity.";
+            } else {
+                details += ex.getMostSpecificCause().getMessage();
+            }
+        }
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Data Integrity Error",
+                details
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handle all other generic exceptions (500 Internal Server Error).
+     *
+     * This is a catch-all handler for any unexpected errors.
+     *
+     * @param ex the Exception that was thrown
+     * @param request the current web request
+     * @return ResponseEntity with ErrorResponse and 500 status
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(

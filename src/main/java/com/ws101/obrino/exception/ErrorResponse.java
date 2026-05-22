@@ -2,6 +2,7 @@ package com.ws101.obrino.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 
 /**
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
  * error responses to clients with timestamp, status code, message, and details.
  *
  * @author Obrino
- * @version 1.0
+ * @version 2.0
  */
 @Data
 @AllArgsConstructor
@@ -19,7 +20,9 @@ public class ErrorResponse {
 
     /**
      * The timestamp when the error occurred.
+     * Formatted as ISO 8601 date-time.
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime timestamp;
 
     /**
