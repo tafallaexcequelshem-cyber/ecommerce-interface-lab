@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Product Listing</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>Products</h1>
+  <nav>
+    <ul>
+      <li><a href="landing.html">Home</a></li>
+      <li><a href="cart.html">Cart</a></li>
+      <li><a href="account.html">Account</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section aria-labelledby="products-title" id="product-container">
+    <!-- Products will be dynamically rendered here by script.js -->
+  </section>
+
+  <aside>
+    <h2>Filter Products</h2>
+    <form id="filter-form">
+      <fieldset>
+        <legend>Category</legend>
+        <label><input type="checkbox" class="cat-check" value="oversized" checked> Oversized</label>
+        <label><input type="checkbox" class="cat-check" value="standard" checked> Standard Round Neck</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Price Range</legend>
+        <label><input type="radio" name="price" value="all" checked> All Prices</label>
+        <label><input type="radio" name="price" value="low"> Low</label>
+        <label><input type="radio" name="price" value="high"> High</label>
+      </fieldset>
+    </form>
+  </aside>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>

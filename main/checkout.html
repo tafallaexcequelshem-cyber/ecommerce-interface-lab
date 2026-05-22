@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Checkout - Clothing Store</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>Checkout</h1>
+  <nav>
+    <ul>
+      <li><a href="landing.html">Home</a></li>
+      <li><a href="products.html">Shop</a></li>
+      <li><a href="cart.html">Cart</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main class="checkout">
+  <h1>Checkout</h1>
+
+  <form id="checkout-form">
+    <section>
+      <h2>Shipping Information</h2>
+      <fieldset>
+        <label for="fullname">Full Name</label>
+        <input id="fullname" type="text" name="fullname" required>
+
+        <label for="email">Email</label>
+        <input id="email" type="email" name="email" required>
+
+        <label for="street">Street Address</label>
+        <input id="street" type="text" name="street" required>
+
+        <label for="city">City</label>
+        <input id="city" type="text" name="city" required>
+
+        <label for="zipcode">ZIP Code</label>
+        <input id="zipcode" type="text" name="zipcode" required>
+      </fieldset>
+    </section>
+
+    <section>
+      <h2>Payment Method</h2>
+      <fieldset>
+        <legend>Select Payment Method</legend>
+        <label><input type="radio" name="payment" value="credit-card" required> Credit Card</label>
+        <label><input type="radio" name="payment" value="paypal" required> PayPal</label>
+      </fieldset>
+    </section>
+
+    <section class="summary">
+      <h2>Order Summary</h2>
+
+      <ul class="summary-list">
+        <li>One Piece - Oversized Tee x 1 <span class="item-price">₱600</span></li>
+        <li>Upseen - Standard Tee x 2 <span class="item-price">₱800</span></li>
+      </ul>
+
+      <div class="summary-total-row">
+        <span>Subtotal:</span>
+        <span class="total-amount">₱1,400</span>
+      </div>
+
+      <button type="submit" class="checkout-btn">Place Order</button>
+    </section>
+  </form>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
