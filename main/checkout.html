@@ -19,36 +19,41 @@
 </header>
 
 <main class="checkout">
-  <h1>Checkout</h1>
-
   <form id="checkout-form">
     <section>
       <h2>Shipping Information</h2>
-      <fieldset>
+      <div class="form-group">
         <label for="fullname">Full Name</label>
         <input id="fullname" type="text" name="fullname" required>
+      </div>
 
+      <div class="form-group">
         <label for="email">Email</label>
         <input id="email" type="email" name="email" required>
+      </div>
 
+      <div class="form-group">
         <label for="street">Street Address</label>
         <input id="street" type="text" name="street" required>
+      </div>
 
+      <div class="form-group">
         <label for="city">City</label>
         <input id="city" type="text" name="city" required>
+      </div>
 
+      <div class="form-group">
         <label for="zipcode">ZIP Code</label>
         <input id="zipcode" type="text" name="zipcode" required>
-      </fieldset>
+      </div>
     </section>
 
     <section>
       <h2>Payment Method</h2>
-      <fieldset>
-        <legend>Select Payment Method</legend>
+      <div class="payment-options">
         <label><input type="radio" name="payment" value="credit-card" required> Credit Card</label>
         <label><input type="radio" name="payment" value="paypal" required> PayPal</label>
-      </fieldset>
+      </div>
     </section>
 
     <section class="summary">
