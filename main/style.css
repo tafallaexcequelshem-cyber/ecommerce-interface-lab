@@ -77,6 +77,13 @@ form {
     margin: 20px 0;
 }
 
+form#checkout-form {
+    background: none;
+    padding: 0;
+    max-width: 100%;
+    margin: 0;
+}
+
 label {
     display: block;
     margin-bottom: 5px;
@@ -294,41 +301,63 @@ section h2 {
 
 /* Checkout Page Summary Layout*/
 main.checkout .summary {
-    padding: 15px;
+    padding: 25px;
     border: 1px solid #eee;
     border-radius: 8px;
-    background: #f9f9f9;
+    background: #fff;
+    border-top: 3px solid #222;
+    display: block;
 }
 
 main.checkout .summary h2 {
     text-align: center;
-    margin-bottom: 15px;
+    margin: 0 0 20px 0;
+    color: #222;
+    font-size: 1.3rem;
 }
 
 main.checkout .summary-list {
     list-style: none;
     padding: 0;
-    margin: 0 0 15px 0;
+    margin: 0 0 20px 0;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
 }
 
 main.checkout .summary-list li {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid #eee;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.95rem;
+}
+
+main.checkout .summary-list li:last-child {
+    border-bottom: none;
 }
 
 main.checkout .summary-list .item-price {
     font-weight: bold;
+    color: #222;
+    font-size: 1rem;
 }
 
 main.checkout .summary-total-row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     font-weight: bold;
     font-size: 1.1rem;
-    margin-bottom: 10px;
+    margin: 20px 0;
+    padding: 15px 0;
+    border-top: 2px solid #222;
+    border-bottom: 2px solid #eee;
+}
+
+main.checkout .summary-total-row .total-amount {
+    color: #222;
+    font-size: 1.2rem;
 }
 
 main.checkout .shipping-info {
@@ -339,14 +368,16 @@ main.checkout .shipping-info {
 
 main.checkout .checkout-btn {
     width: 100%;
-    padding: 12px;
+    padding: 14px;
     background-color: #222;
     color: #fff;
     border: none;
     border-radius: 4px;
     font-weight: bold;
+    font-size: 1rem;
     cursor: pointer;
     transition: background 0.3s, transform 0.1s;
+    margin-top: 15px;
 }
 
 main.checkout .checkout-btn:hover {
@@ -735,9 +766,8 @@ main.checkout {
     padding: 40px 20px;
 }
 
-main.checkout h1 {
-    text-align: center;
-    margin-bottom: 30px;
+main.checkout form {
+    display: block;
 }
 
 main.checkout section {
@@ -746,6 +776,53 @@ main.checkout section {
     margin-bottom: 25px;
     border-radius: 8px;
     border: 1px solid #eee;
+}
+
+main.checkout section h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #222;
+    font-size: 1.3rem;
+}
+
+main.checkout .form-group {
+    margin-bottom: 15px;
+}
+
+main.checkout .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #333;
+}
+
+main.checkout .form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+main.checkout .form-group input:focus {
+    outline: none;
+    border-color: #222;
+    box-shadow: 0 0 4px rgba(34, 34, 34, 0.2);
+}
+
+main.checkout .payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+main.checkout .payment-options label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: normal;
 }
 
 main.checkout fieldset {

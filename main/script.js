@@ -5,6 +5,30 @@
  */
 
 // ============================================================================
+// CONFIGURATION
+// ============================================================================
+
+const API_BASE_URL = 'http://localhost:8080/api/v1';
+
+/**
+ * Mock product data for fallback when backend is unavailable
+ */
+const FALLBACK_PRODUCTS = [
+  new Product(1, 'One Piece - Oversized Tee', 600, '../image/b7e69fc1-f473-49b7-b02c-1e07fb7abdfe.jpg', 'oversized', 'Comfortable oversized fit perfect for casual wear'),
+  new Product(2, 'Eternal - Oversized Tee', 300, '../image/e2680c66-259f-4f45-9e28-f5655d6f30f2.jpg', 'oversized', 'Timeless design with premium quality fabric'),
+  new Product(3, 'Upseen - Standard Tee', 400, '../image/f2f8f27e-df3f-4e0c-ba53-f6cf4d3957c1.jpg', 'standard', 'Classic standard fit for everyday wear'),
+  new Product(4, 'Urban Vibes - Oversized Tee', 550, '../image/b7e69fc1-f473-49b7-b02c-1e07fb7abdfe.jpg', 'oversized', 'Street style inspired oversized tee'),
+  new Product(5, 'Minimalist White - Standard Tee', 350, '../image/f2f8f27e-df3f-4e0c-ba53-f6cf4d3957c1.jpg', 'standard', 'Pure white classic fit tee'),
+  new Product(6, 'Retro Black - Oversized Tee', 500, '../image/e2680c66-259f-4f45-9e28-f5655d6f30f2.jpg', 'oversized', 'Vintage inspired oversized design'),
+  new Product(7, 'Premium Gray - Standard Tee', 450, '../image/b7e69fc1-f473-49b7-b02c-1e07fb7abdfe.jpg', 'standard', 'Premium quality gray standard fit'),
+  new Product(8, 'Bold Navy - Oversized Tee', 580, '../image/f2f8f27e-df3f-4e0c-ba53-f6cf4d3957c1.jpg', 'oversized', 'Navy blue oversized comfort fit'),
+  new Product(9, 'Summer Cool - Standard Tee', 380, '../image/e2680c66-259f-4f45-9e28-f5655d6f30f2.jpg', 'standard', 'Lightweight perfect for summer'),
+  new Product(10, 'Classic Red - Oversized Tee', 520, '../image/b7e69fc1-f473-49b7-b02c-1e07fb7abdfe.jpg', 'oversized', 'Bold red statement piece'),
+  new Product(11, 'Earth Tone - Standard Tee', 420, '../image/f2f8f27e-df3f-4e0c-ba53-f6cf4d3957c1.jpg', 'standard', 'Natural earth tone colors'),
+  new Product(12, 'Premium Charcoal - Oversized Tee', 600, '../image/e2680c66-259f-4f45-9e28-f5655d6f30f2.jpg', 'oversized', 'Premium charcoal oversized fit')
+];
+
+// ============================================================================
 // TASK 1: DATA STRUCTURE - Product Class & Products Array
 // ============================================================================
 
@@ -50,22 +74,93 @@ const currentUser = {
 };
 
 /**
- * Products Array - Contains at least 10 products using Product class instances
+ * Products Array - Fetched from backend API or fallback to local data
  */
-const products = [
-  new Product(1, 'One Piece - Oversized Tee', 600, '../image/b7e69fc1-f473-49b7-b02c-1e07fb7abdfe.jpg', 'oversized', 'Comfortable oversized fit perfect for casual wear'),
-  new Product(2, 'Eternal - Oversized Tee', 300, '../image/e2680c66-259f-4f45-9e28-f5655d6f30f2.jpg', 'oversized', 'Timeless design with premium quality fabric'),
-  new Product(3, 'Upseen - Standard Tee', 400, '../image/f2f8f27e-df3f-4e0c-ba53-f6cf4d3957c1.jpg', 'standard', 'Classic standard fit for everyday wear'),
-  new Product(4, 'Urban Vibes - Oversized Tee', 550, '../image/b7e69fc1-f473-49b7-b02c-1e07fb7abdfe.jpg', 'oversized', 'Street style inspired oversized tee'),
-  new Product(5, 'Minimalist White - Standard Tee', 350, '../image/f2f8f27e-df3f-4e0c-ba53-f6cf4d3957c1.jpg', 'standard', 'Pure white classic fit tee'),
-  new Product(6, 'Retro Black - Oversized Tee', 500, '../image/e2680c66-259f-4f45-9e28-f5655d6f30f2.jpg', 'oversized', 'Vintage inspired oversized design'),
-  new Product(7, 'Premium Gray - Standard Tee', 450, '../image/b7e69fc1-f473-49b7-b02c-1e07fb7abdfe.jpg', 'standard', 'Premium quality gray standard fit'),
-  new Product(8, 'Bold Navy - Oversized Tee', 580, '../image/f2f8f27e-df3f-4e0c-ba53-f6cf4d3957c1.jpg', 'oversized', 'Navy blue oversized comfort fit'),
-  new Product(9, 'Summer Cool - Standard Tee', 380, '../image/e2680c66-259f-4f45-9e28-f5655d6f30f2.jpg', 'standard', 'Lightweight perfect for summer'),
-  new Product(10, 'Classic Red - Oversized Tee', 520, '../image/b7e69fc1-f473-49b7-b02c-1e07fb7abdfe.jpg', 'oversized', 'Bold red statement piece'),
-  new Product(11, 'Earth Tone - Standard Tee', 420, '../image/f2f8f27e-df3f-4e0c-ba53-f6cf4d3957c1.jpg', 'standard', 'Natural earth tone colors'),
-  new Product(12, 'Premium Charcoal - Oversized Tee', 600, '../image/e2680c66-259f-4f45-9e28-f5655d6f30f2.jpg', 'oversized', 'Premium charcoal oversized fit')
-];
+let products = [];
+
+// ============================================================================
+// API INTEGRATION - Fetch Products from Backend
+// ============================================================================
+
+/**
+ * Convert backend product format to frontend Product class
+ * @param {Object} apiProduct - Product from backend API
+ * @returns {Product} Formatted product for frontend use
+ */
+function formatApiProduct(apiProduct) {
+  // Determine category from category object
+  const categoryName = apiProduct.category ? apiProduct.category.name : 'standard';
+  const categoryMap = {
+    'Oversized': 'oversized',
+    'Standard Round Neck': 'standard',
+    'oversized': 'oversized',
+    'standard': 'standard'
+  };
+  
+  const category = categoryMap[categoryName] || 'standard';
+
+  return new Product(
+    apiProduct.id,
+    apiProduct.name,
+    apiProduct.price,
+    apiProduct.imageUrl || '../image/default.jpg',
+    category,
+    apiProduct.description || ''
+  );
+}
+
+/**
+ * Fetch products from backend API with error handling
+ * @returns {Promise<Array>} Array of Product objects
+ */
+async function fetchProductsFromBackend() {
+  try {
+    console.log('Fetching products from backend...');
+    
+    const response = await fetch(`${API_BASE_URL}/products`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const apiProducts = await response.json();
+    
+    if (!Array.isArray(apiProducts)) {
+      throw new Error('API returned invalid format');
+    }
+
+    // Format products from API
+    const formattedProducts = apiProducts.map(apiProduct => formatApiProduct(apiProduct));
+    
+    console.log(`✓ Successfully loaded ${formattedProducts.length} products from backend`);
+    return formattedProducts;
+    
+  } catch (error) {
+    console.warn('Failed to fetch products from backend:', error.message);
+    console.log('Using fallback local products...');
+    return FALLBACK_PRODUCTS;
+  }
+}
+
+/**
+ * Initialize products on app startup
+ */
+async function initializeProducts() {
+  products = await fetchProductsFromBackend();
+  
+  // If products array is empty after fetch, use fallback
+  if (products.length === 0) {
+    console.warn('No products available from any source');
+    products = FALLBACK_PRODUCTS;
+  }
+}
 
 // ============================================================================
 // CART MANAGEMENT STATE & FUNCTIONS
@@ -621,8 +716,11 @@ function setupProductFilters() {
 /**
  * Main initialization function - runs when DOM is loaded
  */
-function initializeApp() {
-  console.log('E-Commerce Interface initialized');
+async function initializeApp() {
+  console.log('E-Commerce Interface initializing...');
+
+  // Initialize products from backend or fallback
+  await initializeProducts();
 
   // Load cart from storage
   loadCartFromStorage();
@@ -653,6 +751,8 @@ function initializeApp() {
 
   // Setup landing page cart link (if exists)
   setupCartLink();
+
+  console.log('✓ E-Commerce Interface ready');
 }
 
 /**
@@ -708,4 +808,8 @@ function setupCartLink() {
 // INITIALIZE APP WHEN DOM IS LOADED
 // ============================================================================
 
-document.addEventListener('DOMContentLoaded', initializeApp);
+document.addEventListener('DOMContentLoaded', () => {
+  initializeApp().catch(error => {
+    console.error('Failed to initialize app:', error);
+  });
+});
