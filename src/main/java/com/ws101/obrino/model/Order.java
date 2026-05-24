@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -58,8 +59,8 @@ public class Order {
      * Total order amount.
      * Calculated from the sum of all order items.
      */
-    @Column(nullable = false, precision = 10, scale = 2)
-    private Double totalAmount;
+    @Column(nullable = false)
+    private BigDecimal totalAmount;
 
     /**
      * Status of the order (e.g., PENDING, PROCESSING, SHIPPED, DELIVERED).

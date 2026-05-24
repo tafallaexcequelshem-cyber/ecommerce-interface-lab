@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
 
 /**
  * REST Controller for managing product operations.
@@ -45,9 +47,22 @@ public class ProductController {
      * @return a {@code ResponseEntity} containing a list of all products
      */
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
+    public ResponseEntity<List<Map<String, Object>>> getAllProducts() {
         List<Product> products = productService.getAllProducts();
-        return ResponseEntity.ok(products);
+        List<Map<String, Object>> response = new ArrayList<>();
+        for (Product product : products) {
+            response.add(Map.of(
+                "id", product.getId(),
+                "name", product.getName(),
+                "description", product.getDescription() != null ? product.getDescription() : "",
+                "price", product.getPrice().toString(),
+                "stock", product.getStock(),
+                "imageUrl", product.getImageUrl() != null ? product.getImageUrl() : "",
+                "createdAt", product.getCreatedAt(),
+                "updatedAt", product.getUpdatedAt()
+            ));
+        }
+        return ResponseEntity.ok(response);
     }
 
     /**

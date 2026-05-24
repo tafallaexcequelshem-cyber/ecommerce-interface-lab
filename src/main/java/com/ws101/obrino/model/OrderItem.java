@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 
 /**
  * OrderItem entity representing an individual item within an order.
@@ -70,15 +71,15 @@ public class OrderItem {
      * Price per unit at the time of order.
      * This is stored to maintain price history (product price may change later).
      */
-    @Column(nullable = false, precision = 10, scale = 2)
-    private Double pricePerUnit;
+    @Column(nullable = false)
+    private BigDecimal pricePerUnit;
 
     /**
      * Calculates and returns the total price for this order item.
      *
      * @return the product of quantity and pricePerUnit
      */
-    public Double getTotalPrice() {
-        return quantity * pricePerUnit;
+    public BigDecimal getTotalPrice() {
+        return pricePerUnit.multiply(new BigDecimal(quantity));
     }
 }

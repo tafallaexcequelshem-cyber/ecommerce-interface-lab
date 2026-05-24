@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
 
@@ -54,7 +55,7 @@ public class Product {
      * The price of the product.
      * Must be a positive number. Stored with 2 decimal places.
      */
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false)
     private BigDecimal price;
 
     /**
@@ -62,12 +63,13 @@ public class Product {
      * Multiple products can belong to one category.
      *
      * @JoinColumn specifies the foreign key column name in the products table.
-     * fetch = FetchType.LAZY improves performance by loading category only when accessed.
+     * fetch = FetchType.EAGER ensures category is loaded with product for serialization.
      * optional = false makes category mandatory for every product.
      */
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "category_id", nullable = false)
     @ToString.Exclude
+    @JsonIgnore
     private Category category;
 
     /**
