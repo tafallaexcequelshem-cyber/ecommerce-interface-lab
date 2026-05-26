@@ -4,11 +4,14 @@ import com.ws101.obrino.dto.LoginUserDto;
 import com.ws101.obrino.dto.RegisterUserDto;
 import com.ws101.obrino.model.User;
 import com.ws101.obrino.repository.UserRepository;
+import com.ws101.obrino.service.JwtUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * REST Controller for authentication operations.
+ * REST Controller for authentication operations with JWT support.
  *
  * This controller exposes HTTP endpoints for user registration and login.
  * All endpoints use the /api/v1/auth base path and handle both success and error scenarios.
@@ -26,10 +29,11 @@ import java.util.Map;
  * - User registration with validation
  * - Password hashing with BCrypt
  * - Duplicate username prevention
- * - Session-based authentication
+ * - JWT token generation on successful login
+ * - Token-based (stateless) authentication
  *
  * @author Obrino
- * @version 1.0
+ * @version 2.0 (JWT-based)
  */
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -39,6 +43,7 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
     /**
      * Constructor for dependency injection of required services.
@@ -46,14 +51,17 @@ public class AuthController {
      * @param userRepository for accessing user data from the database
      * @param passwordEncoder for hashing passwords securely
      * @param authenticationManager for handling authentication
+     * @param jwtUtil for JWT token generation and validation
      */
     public AuthController(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            AuthenticationManager authenticationManager) {
+            AuthenticationManager authenticationManager,
+            JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
     }
 
     /**
@@ -130,38 +138,48 @@ public class AuthController {
     }
 
     /**
-     * Log in a user (triggers Spring Security's form login).
+     * Log in a user and return a JWT token.
      *
      * HTTP Method: POST
      * Endpoint: POST /api/v1/auth/login
      * Request Body: LoginUserDto with validation
-     * Response Status: 200 OK (success), 400 Bad Request (validation error), 401 Unauthorized (authentication failed)
+     * Response Status: 200 OK (success with JWT token), 400 Bad Request (validation error), 401 Unauthorized (authentication failed)
      *
-     * Note: Spring Security's form login filter will handle the actual authentication.
-     * This endpoint is provided for API clients that prefer JSON-based login over form submissions.
-     * The endpoint validates input and returns appropriate messages.
+     * Process:
+     * 1. Validate input using @Valid annotation
+     * 2. Authenticate user with provided credentials using AuthenticationManager
+     * 3. Generate JWT token for authenticated user
+     * 4. Return token in response body for client storage
+     * 5. Client includes token in Authorization header for subsequent requests
      *
      * @param loginDto the login credentials (validated)
-     * @return ResponseEntity with success message or error details
+     * @return ResponseEntity with JWT token or error details
      */
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginUserDto loginDto) {
         try {
-            // Attempt to authenticate using the provided credentials
-            authenticationManager.authenticate(
+            // 1. Attempt to authenticate using the provided credentials
+            Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginDto.getUsername(),
                             loginDto.getPassword()
                     )
             );
 
-            // If authentication succeeds, return success response
-            // Spring Security will automatically set the JSESSIONID cookie
+            // 2. Get authenticated user's details
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+            // 3. Generate JWT token for the authenticated user
+            String token = jwtUtil.generateToken(userDetails);
+
+            // 4. Build success response with JWT token
             Map<String, Object> response = new HashMap<>();
             response.put("timestamp", LocalDateTime.now());
             response.put("status", HttpStatus.OK.value());
-            response.put("message", "Login successful. Session cookie has been set.");
-            response.put("sessionManagement", "Session-based authentication enabled");
+            response.put("message", "Login successful");
+            response.put("token", token);
+            response.put("tokenType", "Bearer");
+            response.put("expiresIn", 86400); // 24 hours in seconds
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception ex) {
@@ -177,14 +195,15 @@ public class AuthController {
     }
 
     /**
-     * Logout endpoint for completing the session.
+     * Logout endpoint (client-side token removal).
      *
      * HTTP Method: POST
      * Endpoint: POST /api/v1/auth/logout
      * Response Status: 200 OK
      *
-     * Note: Spring Security's logout filter (/logout) handles session invalidation.
-     * This endpoint is a convenience endpoint for API clients.
+     * Note: Since JWT authentication is stateless, logout is handled client-side
+     * by removing the token. This endpoint is provided for consistency and
+     * can be extended to maintain a token blacklist if needed.
      *
      * @return ResponseEntity with logout confirmation
      */
@@ -193,7 +212,7 @@ public class AuthController {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
         response.put("status", HttpStatus.OK.value());
-        response.put("message", "Logout successful. Session has been invalidated.");
+        response.put("message", "Logout successful. Please remove the token from client storage.");
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

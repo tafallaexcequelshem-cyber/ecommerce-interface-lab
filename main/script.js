@@ -15,21 +15,27 @@ const API_BASE_URL = 'http://localhost:8080/api/v1';
 // ============================================================================
 
 /**
- * Enhanced fetch wrapper with authentication and error handling
- * Automatically handles 401/403 errors and redirects to login if needed
+ * Enhanced fetch wrapper with JWT authentication and error handling
+ * Automatically includes JWT token in Authorization header
+ * Handles 401/403 errors and redirects to login if needed
  * @param {string} url - API endpoint URL
  * @param {object} options - Fetch options
  * @returns {Promise} Fetch response
  */
 async function secureApiFetch(url, options = {}) {
   try {
-    // Always include credentials for session-based auth
-    options.credentials = 'include';
-    
     // Set default headers
     if (!options.headers) {
       options.headers = {};
     }
+
+    // Add JWT token to Authorization header if available
+    const token = getJwtToken();
+    if (token) {
+      options.headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    // Handle JSON body
     if (!options.headers['Content-Type'] && options.body && typeof options.body === 'object') {
       options.headers['Content-Type'] = 'application/json';
       options.body = JSON.stringify(options.body);
@@ -37,10 +43,11 @@ async function secureApiFetch(url, options = {}) {
 
     const response = await fetch(url, options);
 
-    // Handle 401 Unauthorized - user not logged in
+    // Handle 401 Unauthorized - token invalid or expired
     if (response.status === 401) {
-      console.warn('Session expired or not authenticated. Redirecting to login...');
+      console.warn('Token expired or invalid. Redirecting to login...');
       showErrorMessage('Your session has expired. Please log in again.');
+      clearJwtToken();
       setTimeout(() => {
         window.location.href = 'login.html';
       }, 2000);
@@ -60,6 +67,29 @@ async function secureApiFetch(url, options = {}) {
     showErrorMessage('Network error. Please check your connection.');
     throw error;
   }
+}
+
+/**
+ * Get JWT token from localStorage
+ * @returns {string|null} JWT token or null if not found
+ */
+function getJwtToken() {
+  return localStorage.getItem('jwt_token');
+}
+
+/**
+ * Store JWT token in localStorage
+ * @param {string} token - JWT token to store
+ */
+function setJwtToken(token) {
+  localStorage.setItem('jwt_token', token);
+}
+
+/**
+ * Clear JWT token from localStorage
+ */
+function clearJwtToken() {
+  localStorage.removeItem('jwt_token');
 }
 
 /**
@@ -131,20 +161,12 @@ function showSuccessMessage(message) {
 }
 
 /**
- * Check if user is logged in by verifying session
- * @returns {Promise<boolean>} True if user is authenticated
+ * Check if user is logged in by checking for JWT token
+ * @returns {boolean} True if user has valid JWT token
  */
-async function isUserLoggedIn() {
-  try {
-    // Try to fetch a protected resource to check authentication
-    const response = await fetch(`${API_BASE_URL}/products`, {
-      method: 'GET',
-      credentials: 'include'
-    });
-    return response.status !== 401;
-  } catch {
-    return false;
-  }
+function isUserLoggedIn() {
+  const token = getJwtToken();
+  return token !== null && token !== undefined && token !== '';
 }
 
 /**
@@ -154,12 +176,17 @@ async function logout() {
   try {
     await fetch(`${API_BASE_URL}/auth/logout`, {
       method: 'POST',
-      credentials: 'include'
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getJwtToken()}`
+      }
     });
   } catch (error) {
     console.error('Logout error:', error);
   } finally {
-    // Clear session storage
+    // Clear JWT token and session storage
+    clearJwtToken();
+    localStorage.removeItem('username');
     sessionStorage.removeItem('isLoggedIn');
     sessionStorage.removeItem('username');
     // Redirect to login
@@ -169,13 +196,11 @@ async function logout() {
 
 /**
  * Protect page from unauthenticated access
- * Checks if user is logged in, redirects to login if not
+ * Checks if user has valid JWT token, redirects to login if not
  * @param {string} requiredRole - Optional role to check for (e.g., 'ADMIN')
  */
-async function protectPage(requiredRole = null) {
-  const isLoggedIn = await isUserLoggedIn();
-  
-  if (!isLoggedIn) {
+function protectPage(requiredRole = null) {
+  if (!isUserLoggedIn()) {
     showErrorMessage('You must be logged in to access this page.');
     setTimeout(() => {
       window.location.href = 'login.html';
@@ -186,11 +211,11 @@ async function protectPage(requiredRole = null) {
 
 /**
  * Initialize authentication state on page load
- * Updates UI elements based on login status
+ * Updates UI elements based on login status and JWT token
  */
-async function initializeAuthState() {
-  const isLoggedIn = await isUserLoggedIn();
-  const username = sessionStorage.getItem('username');
+function initializeAuthState() {
+  const isLoggedIn = isUserLoggedIn();
+  const username = localStorage.getItem('username');
   
   // Update navbar/header based on login status
   const authNav = document.getElementById('authNavigation');
