@@ -11,6 +11,204 @@
 const API_BASE_URL = 'http://localhost:8080/api/v1';
 
 // ============================================================================
+// AUTHENTICATION & ERROR HANDLING
+// ============================================================================
+
+/**
+ * Enhanced fetch wrapper with authentication and error handling
+ * Automatically handles 401/403 errors and redirects to login if needed
+ * @param {string} url - API endpoint URL
+ * @param {object} options - Fetch options
+ * @returns {Promise} Fetch response
+ */
+async function secureApiFetch(url, options = {}) {
+  try {
+    // Always include credentials for session-based auth
+    options.credentials = 'include';
+    
+    // Set default headers
+    if (!options.headers) {
+      options.headers = {};
+    }
+    if (!options.headers['Content-Type'] && options.body && typeof options.body === 'object') {
+      options.headers['Content-Type'] = 'application/json';
+      options.body = JSON.stringify(options.body);
+    }
+
+    const response = await fetch(url, options);
+
+    // Handle 401 Unauthorized - user not logged in
+    if (response.status === 401) {
+      console.warn('Session expired or not authenticated. Redirecting to login...');
+      showErrorMessage('Your session has expired. Please log in again.');
+      setTimeout(() => {
+        window.location.href = 'login.html';
+      }, 2000);
+      return response;
+    }
+
+    // Handle 403 Forbidden - user doesn't have permission
+    if (response.status === 403) {
+      console.warn('Access denied. You do not have permission to perform this action.');
+      showErrorMessage('Access Denied: You do not have permission to perform this action.');
+      return response;
+    }
+
+    return response;
+  } catch (error) {
+    console.error('API Fetch Error:', error);
+    showErrorMessage('Network error. Please check your connection.');
+    throw error;
+  }
+}
+
+/**
+ * Display error message to user
+ * @param {string} message - Error message to display
+ */
+function showErrorMessage(message) {
+  // Try to find error message container on the page
+  let errorDiv = document.getElementById('globalErrorMessage');
+  if (!errorDiv) {
+    errorDiv = document.createElement('div');
+    errorDiv.id = 'globalErrorMessage';
+    errorDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 15px 20px;
+      border: 1px solid #f5c6cb;
+      border-radius: 4px;
+      z-index: 9999;
+      max-width: 400px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    `;
+    document.body.appendChild(errorDiv);
+  }
+  
+  errorDiv.textContent = message;
+  errorDiv.style.display = 'block';
+  
+  // Auto-hide after 5 seconds
+  setTimeout(() => {
+    errorDiv.style.display = 'none';
+  }, 5000);
+}
+
+/**
+ * Display success message to user
+ * @param {string} message - Success message to display
+ */
+function showSuccessMessage(message) {
+  let successDiv = document.getElementById('globalSuccessMessage');
+  if (!successDiv) {
+    successDiv = document.createElement('div');
+    successDiv.id = 'globalSuccessMessage';
+    successDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #d4edda;
+      color: #155724;
+      padding: 15px 20px;
+      border: 1px solid #c3e6cb;
+      border-radius: 4px;
+      z-index: 9999;
+      max-width: 400px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    `;
+    document.body.appendChild(successDiv);
+  }
+  
+  successDiv.textContent = message;
+  successDiv.style.display = 'block';
+  
+  setTimeout(() => {
+    successDiv.style.display = 'none';
+  }, 4000);
+}
+
+/**
+ * Check if user is logged in by verifying session
+ * @returns {Promise<boolean>} True if user is authenticated
+ */
+async function isUserLoggedIn() {
+  try {
+    // Try to fetch a protected resource to check authentication
+    const response = await fetch(`${API_BASE_URL}/products`, {
+      method: 'GET',
+      credentials: 'include'
+    });
+    return response.status !== 401;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Logout user and redirect to login page
+ */
+async function logout() {
+  try {
+    await fetch(`${API_BASE_URL}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include'
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
+  } finally {
+    // Clear session storage
+    sessionStorage.removeItem('isLoggedIn');
+    sessionStorage.removeItem('username');
+    // Redirect to login
+    window.location.href = 'login.html';
+  }
+}
+
+/**
+ * Protect page from unauthenticated access
+ * Checks if user is logged in, redirects to login if not
+ * @param {string} requiredRole - Optional role to check for (e.g., 'ADMIN')
+ */
+async function protectPage(requiredRole = null) {
+  const isLoggedIn = await isUserLoggedIn();
+  
+  if (!isLoggedIn) {
+    showErrorMessage('You must be logged in to access this page.');
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 1500);
+  }
+  // TODO: Add role checking if needed for admin-only pages
+}
+
+/**
+ * Initialize authentication state on page load
+ * Updates UI elements based on login status
+ */
+async function initializeAuthState() {
+  const isLoggedIn = await isUserLoggedIn();
+  const username = sessionStorage.getItem('username');
+  
+  // Update navbar/header based on login status
+  const authNav = document.getElementById('authNavigation');
+  if (authNav) {
+    if (isLoggedIn && username) {
+      authNav.innerHTML = `
+        <span>Welcome, ${username}!</span>
+        <button onclick="logout()" style="cursor: pointer; padding: 5px 10px; margin-left: 10px;">Logout</button>
+      `;
+    } else {
+      authNav.innerHTML = `
+        <a href="login.html">Login</a> | <a href="signup.html">Sign Up</a>
+      `;
+    }
+  }
+}
+
+// ============================================================================
 // TASK 1: DATA STRUCTURE - Product Class & Products Array
 // ============================================================================
 
@@ -117,13 +315,12 @@ async function fetchProductsFromBackend() {
   try {
     console.log('Fetching products from backend...');
     
-    const response = await fetch(`${API_BASE_URL}/products`, {
+    const response = await secureApiFetch(`${API_BASE_URL}/products`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
-      },
-      credentials: 'include'
+      }
     });
 
     if (!response.ok) {

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - E-Commerce</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .login-container h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .login-container form {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+        }
+        .login-btn {
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .login-btn:hover {
+            background-color: #0056b3;
+        }
+        .login-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .signup-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        .signup-link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+        .error-message {
+            color: #dc3545;
+            margin-bottom: 20px;
+            padding: 12px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            display: none;
+        }
+        .success-message {
+            color: #155724;
+            margin-bottom: 20px;
+            padding: 12px;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            display: none;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            color: #666;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>E-Commerce Store</h1>
+        <nav>
+            <ul>
+                <li><a href="landing.html">Home</a></li>
+                <li><a href="products.html">Shop</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="account.html">Account</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="login-container">
+            <h1>Login</h1>
+            
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            <div class="loading" id="loadingIndicator">Logging in...</div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        required
+                        placeholder="Enter your username"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        required
+                        placeholder="Enter your password"
+                    >
+                </div>
+
+                <!-- CSRF Token will be inserted here -->
+                <input type="hidden" id="csrfToken" name="_csrf">
+
+                <button type="submit" class="login-btn" id="loginBtn">Login</button>
+            </form>
+
+            <div class="signup-link">
+                Don't have an account? <a href="signup.html">Sign up here</a>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        /**
+         * Login Page Handler
+         * Handles CSRF token retrieval, login form submission, and session management
+         */
+
+        const API_BASE_URL = 'http://localhost:8080/api/v1';
+        const CSRF_HEADER_NAME = 'X-CSRF-Token';
+
+        /**
+         * Fetch CSRF token from the login page before form submission
+         * Spring Security requires a CSRF token for POST requests
+         */
+        async function getCsrfToken() {
+            try {
+                const response = await fetch('/login', {
+                    method: 'GET',
+                    credentials: 'include' // Include cookies
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch login page');
+                }
+
+                const html = await response.text();
+                
+                // Parse CSRF token from hidden input field
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const csrfInput = doc.querySelector('input[name="_csrf"]');
+                
+                if (csrfInput && csrfInput.value) {
+                    return csrfInput.value;
+                }
+                
+                // If token not found in HTML, check cookies
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    if (cookie.trim().startsWith('XSRF-TOKEN=')) {
+                        return cookie.trim().substring('XSRF-TOKEN='.length);
+                    }
+                }
+                
+                console.warn('CSRF token not found');
+                return null;
+            } catch (error) {
+                console.error('Error fetching CSRF token:', error);
+                return null;
+            }
+        }
+
+        /**
+         * Handle login form submission
+         */
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            const loadingDiv = document.getElementById('loadingIndicator');
+            const loginBtn = document.getElementById('loginBtn');
+
+            // Reset messages
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            successDiv.textContent = '';
+
+            // Validate inputs
+            if (!username || !password) {
+                errorDiv.textContent = 'Username and password are required';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // Show loading indicator
+            loadingDiv.style.display = 'block';
+            loginBtn.disabled = true;
+
+            try {
+                // Attempt login via API endpoint
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include', // Include cookies for session
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    successDiv.textContent = 'Login successful! Redirecting...';
+                    successDiv.style.display = 'block';
+                    
+                    // Store session info (optional)
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('username', username);
+                    
+                    // Redirect to products page after 1.5 seconds
+                    setTimeout(() => {
+                        window.location.href = 'products.html';
+                    }, 1500);
+                } else if (response.status === 401) {
+                    errorDiv.textContent = 'Invalid username or password. Please try again.';
+                    errorDiv.style.display = 'block';
+                } else {
+                    const errorData = await response.json();
+                    errorDiv.textContent = errorData.message || 'Login failed. Please try again.';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorDiv.textContent = 'Network error. Please check your connection and try again.';
+                errorDiv.style.display = 'block';
+            } finally {
+                // Hide loading indicator
+                loadingDiv.style.display = 'none';
+                loginBtn.disabled = false;
+            }
+        });
+
+        /**
+         * Initialize page - fetch CSRF token on page load
+         */
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Pre-fetch CSRF token for faster form submission
+            const token = await getCsrfToken();
+            if (token) {
+                document.getElementById('csrfToken').value = token;
+            }
+        });
+    </script>
+</body>
+</html>

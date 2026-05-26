@@ -4,6 +4,7 @@ import com.ws101.obrino.model.Product;
 import com.ws101.obrino.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,8 +18,12 @@ import java.util.ArrayList;
  * and advanced filtering. All endpoints use the /api/v1/products base path
  * and return appropriate HTTP status codes.
  *
+ * Security:
+ * - GET endpoints: Public access (no authentication required)
+ * - POST, PUT, PATCH, DELETE: Admin-only access (requires ADMIN role)
+ *
  * @author Obrino
- * @version 1.0
+ * @version 2.0
  * @see ProductService
  */
 @RestController
@@ -43,6 +48,7 @@ public class ProductController {
      * HTTP Method: GET
      * Endpoint: GET /api/v1/products
      * Response Status: 200 OK
+     * Access: Public (no authentication required)
      *
      * @return a {@code ResponseEntity} containing a list of all products
      */
@@ -71,6 +77,7 @@ public class ProductController {
      * HTTP Method: GET
      * Endpoint: GET /api/v1/products/{id}
      * Response Status: 200 OK on success, 404 Not Found if product doesn't exist
+     * Access: Public (no authentication required)
      *
      * @param id the product ID to retrieve (must be a valid positive number)
      * @return a {@code ResponseEntity} containing the requested product
@@ -88,6 +95,7 @@ public class ProductController {
      * HTTP Method: GET
      * Endpoint: GET /api/v1/products/filter?filterType=<type>&filterValue=<value>
      * Response Status: 200 OK, 400 Bad Request for invalid filters
+     * Access: Public (no authentication required)
      *
      * Supported filter types:
      * - "category": Filter by product category
@@ -120,7 +128,8 @@ public class ProductController {
      * HTTP Method: POST
      * Endpoint: POST /api/v1/products
      * Request Body: JSON representation of the product
-     * Response Status: 201 Created on success, 400 Bad Request for invalid data
+     * Response Status: 201 Created on success, 400 Bad Request for invalid data, 403 Forbidden for non-admin users
+     * Access: Admin-only (requires ADMIN role)
      *
      * Required fields in request body:
      * - name: String (minimum 3 characters)
@@ -145,8 +154,10 @@ public class ProductController {
      * @param product the product data to create
      * @return a {@code ResponseEntity} containing the created product with 201 status
      * @throws IllegalArgumentException if product validation fails
+     * @throws AccessDeniedException if user does not have ADMIN role
      */
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
         Product createdProduct = productService.createProduct(product);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
@@ -158,7 +169,8 @@ public class ProductController {
      * HTTP Method: PUT
      * Endpoint: PUT /api/v1/products/{id}
      * Request Body: Complete JSON representation of the product
-     * Response Status: 200 OK on success, 404 Not Found if product doesn't exist, 400 Bad Request for invalid data
+     * Response Status: 200 OK on success, 404 Not Found if product doesn't exist, 400 Bad Request for invalid data, 403 Forbidden for non-admin users
+     * Access: Admin-only (requires ADMIN role)
      *
      * All fields except ID are replaced with values from the request body.
      * This is a full replacement operation (all fields must be provided).
@@ -168,8 +180,10 @@ public class ProductController {
      * @return a {@code ResponseEntity} containing the updated product
      * @throws ProductNotFoundException if no product with the given ID exists
      * @throws IllegalArgumentException if product validation fails
+     * @throws AccessDeniedException if user does not have ADMIN role
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Product> updateProduct(
             @PathVariable Long id,
             @RequestBody Product product) {
@@ -183,7 +197,8 @@ public class ProductController {
      * HTTP Method: PATCH
      * Endpoint: PATCH /api/v1/products/{id}
      * Request Body: JSON with only the fields to update
-     * Response Status: 200 OK on success, 404 Not Found if product doesn't exist
+     * Response Status: 200 OK on success, 404 Not Found if product doesn't exist, 403 Forbidden for non-admin users
+     * Access: Admin-only (requires ADMIN role)
      *
      * Only the fields provided in the request body are updated.
      * Fields not included in the request are left unchanged.
@@ -198,8 +213,10 @@ public class ProductController {
      * @param product the product data with only fields to update
      * @return a {@code ResponseEntity} containing the updated product
      * @throws ProductNotFoundException if no product with the given ID exists
+     * @throws AccessDeniedException if user does not have ADMIN role
      */
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Product> partialUpdateProduct(
             @PathVariable Long id,
             @RequestBody Product product) {
@@ -212,15 +229,18 @@ public class ProductController {
      *
      * HTTP Method: DELETE
      * Endpoint: DELETE /api/v1/products/{id}
-     * Response Status: 204 No Content on success, 404 Not Found if product doesn't exist
+     * Response Status: 204 No Content on success, 404 Not Found if product doesn't exist, 403 Forbidden for non-admin users
+     * Access: Admin-only (requires ADMIN role)
      *
      * Removes the product with the specified ID from the system.
      *
      * @param id the ID of the product to delete
      * @return a {@code ResponseEntity} with no content (204 status)
      * @throws ProductNotFoundException if no product with the given ID exists
+     * @throws AccessDeniedException if user does not have ADMIN role
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();

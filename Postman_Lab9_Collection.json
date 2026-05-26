@@ -1,0 +1,568 @@
+{
+  "info": {
+    "_postman_id": "ecommerce-lab9",
+    "name": "E-Commerce API - Lab 9 (Spring Security & Validation)",
+    "description": "Complete Postman collection for testing E-Commerce REST API with Spring Security\n\nFeatures:\n- Session-based authentication (JSESSIONID)\n- User registration and login\n- Product CRUD operations with role-based access control\n- Input validation testing\n- Error handling demonstrations\n\nInstructions:\n1. Import this collection into Postman\n2. Enable \"Store cookies\" in Postman settings\n3. Enable \"Automatically follow redirects\"\n4. Run requests in order: Register → Login → Test protected endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "1. Register New User (Valid)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser1\",\n  \"email\": \"testuser1@example.com\",\n  \"fullName\": \"Test User One\",\n  \"password\": \"SecurePassword123!\",\n  \"confirmPassword\": \"SecurePassword123!\",\n  \"role\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Successfully register a new user with valid data"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Register User (Validation Error - Short Password)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser2\",\n  \"email\": \"testuser2@example.com\",\n  \"fullName\": \"Test User Two\",\n  \"password\": \"short\",\n  \"confirmPassword\": \"short\",\n  \"role\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Test validation: Password must be at least 8 characters"
+          },
+          "response": []
+        },
+        {
+          "name": "3. Register User (Validation Error - Invalid Email)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser3\",\n  \"email\": \"not-an-email\",\n  \"fullName\": \"Test User Three\",\n  \"password\": \"SecurePassword123!\",\n  \"confirmPassword\": \"SecurePassword123!\",\n  \"role\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Test validation: Email must be valid format"
+          },
+          "response": []
+        },
+        {
+          "name": "4. Register User (Duplicate Username)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser1\",\n  \"email\": \"different@example.com\",\n  \"fullName\": \"Another User\",\n  \"password\": \"SecurePassword123!\",\n  \"confirmPassword\": \"SecurePassword123!\",\n  \"role\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Test error handling: Username already exists (duplicate username)"
+          },
+          "response": []
+        },
+        {
+          "name": "5. Login (Valid Credentials)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser1\",\n  \"password\": \"SecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login successfully with valid credentials. JSESSIONID cookie will be automatically stored by Postman."
+          },
+          "response": []
+        },
+        {
+          "name": "6. Login (Invalid Credentials)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser1\",\n  \"password\": \"WrongPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Test authentication failure with wrong password (401 Unauthorized)"
+          },
+          "response": []
+        },
+        {
+          "name": "7. Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/v1/auth/logout",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Logout and invalidate session"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products - Public Access",
+      "item": [
+        {
+          "name": "1. Get All Products (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/v1/products",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ]
+            },
+            "description": "Get all products - no authentication required"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Get Product by ID (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/v1/products/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "1"
+              ]
+            },
+            "description": "Get specific product by ID - no authentication required"
+          },
+          "response": []
+        },
+        {
+          "name": "3. Filter Products (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/v1/products/filter?filterType=price_range&filterValue=300,600",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "filter"
+              ],
+              "query": [
+                {
+                  "key": "filterType",
+                  "value": "price_range"
+                },
+                {
+                  "key": "filterValue",
+                  "value": "300,600"
+                }
+              ]
+            },
+            "description": "Filter products by price range - no authentication required"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products - Admin Only",
+      "item": [
+        {
+          "name": "1. Create Product (Admin Required) - Valid",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Premium Tee\",\n  \"description\": \"High-quality premium t-shirt\",\n  \"price\": 499.99,\n  \"stock\": 150,\n  \"imageUrl\": \"premium-tee.jpg\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/products",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ]
+            },
+            "description": "Create a new product. Requires ADMIN role and valid session (JSESSIONID cookie).\n\nNote: First, complete the Authentication flow:\n1. Register a user with role ADMIN\n2. Login with that user\n3. Then execute this request"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Create Product (Admin Required) - Validation Error (Negative Price)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Invalid Product\",\n  \"description\": \"This should fail validation\",\n  \"price\": -100,\n  \"stock\": 50,\n  \"imageUrl\": \"invalid.jpg\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/products",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ]
+            },
+            "description": "Test validation error: Price must be positive"
+          },
+          "response": []
+        },
+        {
+          "name": "3. Create Product (Admin Required) - Validation Error (Short Name)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"AB\",\n  \"description\": \"Name is too short\",\n  \"price\": 100.00,\n  \"stock\": 50,\n  \"imageUrl\": \"invalid.jpg\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/products",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ]
+            },
+            "description": "Test validation error: Product name must be between 3 and 100 characters"
+          },
+          "response": []
+        },
+        {
+          "name": "4. Create Product (Without Authentication - 401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Should Fail\",\n  \"description\": \"No session/authentication\",\n  \"price\": 100.00,\n  \"stock\": 50,\n  \"imageUrl\": \"fail.jpg\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/products",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ]
+            },
+            "description": "Test authentication failure: 401 Unauthorized when not logged in"
+          },
+          "response": []
+        },
+        {
+          "name": "5. Update Product (PUT) - Admin Required",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Product Name\",\n  \"description\": \"Updated description\",\n  \"price\": 599.99,\n  \"stock\": 200,\n  \"imageUrl\": \"updated.jpg\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/products/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "1"
+              ]
+            },
+            "description": "Update entire product (PUT) - Requires ADMIN role"
+          },
+          "response": []
+        },
+        {
+          "name": "6. Partial Update Product (PATCH) - Admin Required",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 699.99,\n  \"stock\": 75\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/products/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "1"
+              ]
+            },
+            "description": "Partially update product (PATCH) - only specified fields are updated - Requires ADMIN role"
+          },
+          "response": []
+        },
+        {
+          "name": "7. Delete Product - Admin Required",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/v1/products/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "1"
+              ]
+            },
+            "description": "Delete product - Requires ADMIN role"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Complete Test Workflow",
+      "item": [
+        {
+          "name": "WORKFLOW: Complete Authentication & Testing Flow",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/v1/products",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ]
+            },
+            "description": "COMPLETE TEST WORKFLOW:\n\n1. Run: \"1. Register New User (Valid)\" - Create testuser1 account\n2. Run: \"5. Login (Valid Credentials)\" - Login with testuser1\n   - Postman automatically stores JSESSIONID cookie\n3. Run: \"Products - Public Access\" requests - Should work without login\n4. Create an ADMIN user:\n   - Register with role: \"ADMIN\"\n   - Login with that user\n5. Run: \"Products - Admin Only\" requests - Should work with ADMIN role\n6. Run: \"6. Logout\" - Logout and clear session\n7. Try \"4. Create Product (Without Authentication)\" - Should get 401 error\n\nExpected Results:\n- Public endpoints work without authentication\n- Protected endpoints require valid session (JSESSIONID cookie)\n- Admin endpoints require ADMIN role\n- Validation errors return detailed error messages\n- After logout, protected endpoints return 401 Unauthorized"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "api_base_url",
+      "value": "http://localhost:8080/api/v1",
+      "type": "string"
+    }
+  ]
+}

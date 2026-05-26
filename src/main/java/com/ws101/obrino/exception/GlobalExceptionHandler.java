@@ -2,6 +2,7 @@ package com.ws101.obrino.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -10,6 +11,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 import jakarta.persistence.EntityNotFoundException;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Global exception handler for all REST API endpoints.
@@ -18,11 +22,56 @@ import java.time.LocalDateTime;
  * intercepting exceptions and returning consistent error response formats
  * with appropriate HTTP status codes.
  *
+ * Handles:
+ * - Bean Validation errors (MethodArgumentNotValidException)
+ * - Product not found errors
+ * - Entity not found errors
+ * - Database constraint violations
+ * - Type mismatches
+ * - Generic exceptions
+ *
  * @author Obrino
- * @version 2.0
+ * @version 3.0
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    /**
+     * Handle MethodArgumentNotValidException (400 Bad Request).
+     *
+     * Triggered when @Valid annotation fails on a request body.
+     * Extracts all validation errors and returns them in a structured format
+     * so the client knows exactly which fields failed validation.
+     *
+     * @param ex the MethodArgumentNotValidException that was thrown
+     * @param request the current web request
+     * @return ResponseEntity with validation errors and 400 status
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex,
+            WebRequest request) {
+
+        // Extract validation errors from all failed fields
+        Map<String, String> fieldErrors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .collect(Collectors.toMap(
+                        error -> error.getField(),
+                        error -> error.getDefaultMessage(),
+                        (existing, replacement) -> existing + ", " + replacement
+                ));
+
+        // Build response with all validation errors
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("error", "Validation Failed");
+        response.put("message", "Input validation failed. Please check the errors field for details.");
+        response.put("errors", fieldErrors);
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
 
     /**
      * Handle ProductNotFoundException (404 Not Found).

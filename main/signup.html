@@ -1,42 +1,304 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Sign Up</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - E-Commerce</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .signup-container {
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 30px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .signup-container h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .signup-container form {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+        }
+        .error-text {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        .signup-btn {
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .signup-btn:hover {
+            background-color: #218838;
+        }
+        .signup-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        .login-link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        .error-message {
+            color: #dc3545;
+            margin-bottom: 20px;
+            padding: 12px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            display: none;
+        }
+        .success-message {
+            color: #155724;
+            margin-bottom: 20px;
+            padding: 12px;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            display: none;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            color: #666;
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 <body>
+    <header>
+        <h1>E-Commerce Store</h1>
+        <nav>
+            <ul>
+                <li><a href="landing.html">Home</a></li>
+                <li><a href="products.html">Shop</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="login.html">Login</a></li>
+            </ul>
+        </nav>
+    </header>
 
+    <main>
+        <div class="signup-container">
+            <h1>Create Account</h1>
 
-<header>
-  <h1>Create Account</h1>
-  <nav>
-    <ul>
-      <li><a href="landing.html">Home</a></li>
-      <li><a href="products.html">Shop</a></li>
-      <li><a href="cart.html">Cart</a></li>
-    </ul>
-  </nav>
-</header>
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            <div class="loading" id="loadingIndicator">Creating account...</div>
 
-<main class="signup-page">
-  <h1>Create Account</h1>
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        required
+                        placeholder="4-20 characters"
+                        minlength="4"
+                        maxlength="20"
+                    >
+                    <div class="error-text" id="usernameError"></div>
+                </div>
 
-  <form action="account.html" method="post">
-    <fieldset>
-      <legend>Sign Up Form</legend>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        required
+                        placeholder="Enter your email"
+                    >
+                    <div class="error-text" id="emailError"></div>
+                </div>
 
-      <label for="email">Email:</label>
-      <input id="email" type="email" required>
+                <div class="form-group">
+                    <label for="fullName">Full Name (Optional):</label>
+                    <input 
+                        type="text" 
+                        id="fullName" 
+                        name="fullName" 
+                        placeholder="Enter your full name"
+                    >
+                </div>
 
-      <label for="password">Password:</label>
-      <input id="password" type="password" required>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        required
+                        placeholder="Minimum 8 characters"
+                        minlength="8"
+                    >
+                    <div class="error-text" id="passwordError"></div>
+                </div>
 
-      <button type="submit">Sign Up</button>
-    </fieldset>
-  </form>
-</main>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password:</label>
+                    <input 
+                        type="password" 
+                        id="confirmPassword" 
+                        name="confirmPassword" 
+                        required
+                        placeholder="Re-enter password"
+                    >
+                    <div class="error-text" id="confirmPasswordError"></div>
+                </div>
 
-<script src="script.js"></script>
+                <div class="form-group">
+                    <label for="role">Role:</label>
+                    <select id="role" name="role">
+                        <option value="USER" selected>Customer</option>
+                        <option value="SELLER">Seller</option>
+                        <option value="ADMIN">Admin</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="signup-btn" id="signupBtn">Sign Up</button>
+            </form>
+
+            <div class="login-link">
+                Already have an account? <a href="login.html">Login here</a>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        /**
+         * Sign Up Page Handler
+         * Handles user registration with validation
+         */
+
+        const API_BASE_URL = 'http://localhost:8080/api/v1';
+
+        /**
+         * Handle signup form submission
+         */
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const fullName = document.getElementById('fullName').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const role = document.getElementById('role').value;
+
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            const loadingDiv = document.getElementById('loadingIndicator');
+            const signupBtn = document.getElementById('signupBtn');
+
+            // Reset messages
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            successDiv.textContent = '';
+
+            // Validate password match
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'Passwords do not match. Please try again.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // Show loading indicator
+            loadingDiv.style.display = 'block';
+            signupBtn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        fullName: fullName || '',
+                        password: password,
+                        confirmPassword: confirmPassword,
+                        role: role
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    successDiv.textContent = 'Account created successfully! Redirecting to login...';
+                    successDiv.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    const errorData = await response.json();
+                    
+                    // Handle specific field errors
+                    if (errorData.errors) {
+                        const errorMessages = Object.values(errorData.errors).join(', ');
+                        errorDiv.textContent = errorMessages;
+                    } else {
+                        errorDiv.textContent = errorData.message || 'Signup failed. Please check your input and try again.';
+                    }
+                    
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                errorDiv.textContent = 'Network error. Please check your connection and try again.';
+                errorDiv.style.display = 'block';
+            } finally {
+                loadingDiv.style.display = 'none';
+                signupBtn.disabled = false;
+            }
+        });
+    </script>
 </body>
 </html>
