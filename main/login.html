@@ -145,7 +145,6 @@
                     >
                 </div>
 
-                <!-- CSRF Token will be inserted here -->
                 <input type="hidden" id="csrfToken" name="_csrf">
 
                 <button type="submit" class="login-btn" id="loginBtn">Login</button>
@@ -157,18 +156,9 @@
         </div>
     </main>
 
-    <script src="script.js"></script>
     <script>
-        /**
-         * Login Page Handler with JWT Authentication
-         * Handles login form submission and JWT token storage
-         */
-
         const API_BASE_URL = 'http://localhost:8080/api/v1';
 
-        /**
-         * Handle login form submission
-         */
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -179,29 +169,25 @@
             const loadingDiv = document.getElementById('loadingIndicator');
             const loginBtn = document.getElementById('loginBtn');
 
-            // Reset messages
             errorDiv.style.display = 'none';
             successDiv.style.display = 'none';
             errorDiv.textContent = '';
             successDiv.textContent = '';
 
-            // Validate inputs
             if (!username || !password) {
                 errorDiv.textContent = 'Username and password are required';
                 errorDiv.style.display = 'block';
                 return;
             }
 
-            // Show loading indicator
             loadingDiv.style.display = 'block';
             loginBtn.disabled = true;
 
             try {
-                // Attempt login via API endpoint
                 const response = await fetch(`${API_BASE_URL}/auth/login`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         username: username,
@@ -209,47 +195,59 @@
                     })
                 });
 
+                let data = {};
+                try {
+                    data = await response.json();
+                } catch {
+                    data = {};
+                }
+
                 if (response.ok) {
-                    const data = await response.json();
                     successDiv.textContent = 'Login successful! Redirecting...';
                     successDiv.style.display = 'block';
-                    
-                    // Store JWT token in localStorage
+
                     if (data.token) {
-                        setJwtToken(data.token);
+                        localStorage.setItem('jwt_token', data.token);
                     }
-                    
-                    // Store username for welcome message
+
                     localStorage.setItem('username', username);
-                    
-                    // Redirect to products page after 1.5 seconds
+
                     setTimeout(() => {
                         window.location.href = 'products.html';
                     }, 1500);
-                } else if (response.status === 401) {
-                    errorDiv.textContent = 'Invalid username or password. Please try again.';
+
+                } else if (response.status === 400) {
+                    errorDiv.textContent = data.message || 'Invalid request.';
                     errorDiv.style.display = 'block';
+
+                } else if (response.status === 401) {
+                    errorDiv.textContent = data.message || 'Invalid username or password.';
+                    errorDiv.style.display = 'block';
+
                 } else {
-                    const errorData = await response.json();
-                    errorDiv.textContent = errorData.message || 'Login failed. Please try again.';
+                    errorDiv.textContent = data.message || 'Login failed.';
                     errorDiv.style.display = 'block';
                 }
+
             } catch (error) {
-                console.error('Login error:', error);
-                errorDiv.textContent = 'Network error. Please check your connection and try again.';
+                errorDiv.textContent = 'Network error: ' + error.message;
                 errorDiv.style.display = 'block';
+
             } finally {
-                // Hide loading indicator
                 loadingDiv.style.display = 'none';
                 loginBtn.disabled = false;
             }
         });
 
-        /**
-         * Initialize page on DOMContentLoaded
-         */
+        function setJwtToken(token) {
+            localStorage.setItem('jwt_token', token);
+        }
+
+        function getJwtToken() {
+            return localStorage.getItem('jwt_token');
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
-            // If already logged in, redirect to products
             if (getJwtToken()) {
                 window.location.href = 'products.html';
             }

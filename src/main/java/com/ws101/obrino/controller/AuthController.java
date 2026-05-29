@@ -32,12 +32,14 @@ import java.util.Map;
  * - JWT token generation on successful login
  * - Token-based (stateless) authentication
  *
+ * CORS Configuration: Handled globally in SecurityConfig with proper credential support.
+ * Do not use @CrossOrigin with wildcard origins when credentials are enabled.
+ *
  * @author Obrino
  * @version 2.0 (JWT-based)
  */
 @RestController
 @RequestMapping("/api/v1/auth")
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class AuthController {
 
     private final UserRepository userRepository;

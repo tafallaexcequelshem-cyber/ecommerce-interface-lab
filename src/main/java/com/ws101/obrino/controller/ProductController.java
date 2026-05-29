@@ -22,13 +22,15 @@ import java.util.ArrayList;
  * - GET endpoints: Public access (no authentication required)
  * - POST, PUT, PATCH, DELETE: Admin-only access (requires ADMIN role)
  *
+ * CORS Configuration: Handled globally in SecurityConfig with proper credential support.
+ * Do not use @CrossOrigin with wildcard origins when credentials are enabled.
+ *
  * @author Obrino
  * @version 2.0
  * @see ProductService
  */
 @RestController
 @RequestMapping("/api/v1/products")
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class ProductController {
 
     private final ProductService productService;

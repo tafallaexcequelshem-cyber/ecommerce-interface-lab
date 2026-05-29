@@ -91,7 +91,10 @@ public class SecurityConfig {
                             "http://127.0.0.1:5500"
                     ));
                     config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                    config.setAllowedHeaders(Arrays.asList("*"));
+                    // Cannot use "*" for headers when allowCredentials is true
+                    config.setAllowedHeaders(Arrays.asList(
+                            "Content-Type", "Authorization", "Accept", "X-Requested-With"
+                    ));
                     config.setAllowCredentials(true);
                     config.setMaxAge(3600L);
                     return config;
